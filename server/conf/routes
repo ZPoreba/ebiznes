@@ -17,12 +17,12 @@ GET     /product                    controllers.ProductController.read
 PUT     /product                    controllers.ProductController.update
 DELETE  /product                    controllers.ProductController.delete
 
-# Basket
-GET     /basket/token               controllers.BasketController.getToken
-POST    /basket                     controllers.BasketController.create
-GET     /basket                     controllers.BasketController.read
-PUT     /basket                     controllers.BasketController.update
-DELETE  /basket                     controllers.BasketController.delete
+# Cart
+GET     /cart/token                 controllers.CartController.getToken
+POST    /cart                       controllers.CartController.create
+GET     /cart                       controllers.CartController.read
+PUT     /cart                       controllers.CartController.update
+DELETE  /cart                       controllers.CartController.delete
 
 # Category
 GET     /category/token             controllers.CategoryController.getToken
@@ -32,32 +32,53 @@ PUT     /category                   controllers.CategoryController.update
 DELETE  /category                   controllers.CategoryController.delete
 
 # Opinion
-GET     /opinion/token             controllers.OpinionController.getToken
-POST    /opinion                   controllers.OpinionController.create
-GET     /opinion                   controllers.OpinionController.read
-PUT     /opinion                   controllers.OpinionController.update
-DELETE  /opinion                   controllers.OpinionController.delete
+GET     /opinion/token              controllers.OpinionController.getToken
+POST    /opinion                    controllers.OpinionController.create
+GET     /opinion                    controllers.OpinionController.read
+PUT     /opinion                    controllers.OpinionController.update
+DELETE  /opinion                    controllers.OpinionController.delete
 
 # Order
-GET     /order/token             controllers.OrderController.getToken
-POST    /order                   controllers.OrderController.create
-GET     /order                   controllers.OrderController.read
-PUT     /order                   controllers.OrderController.update
-DELETE  /order                   controllers.OrderController.delete
+GET     /order/token                controllers.OrderController.getToken
+POST    /order                      controllers.OrderController.create
+GET     /order                      controllers.OrderController.read
+PUT     /order                      controllers.OrderController.update
+DELETE  /order                      controllers.OrderController.delete
 
 # Payment
-GET     /payment/token             controllers.PaymentController.getToken
-POST    /payment                   controllers.PaymentController.create
-GET     /payment                   controllers.PaymentController.read
-PUT     /payment                   controllers.PaymentController.update
-DELETE  /payment                   controllers.PaymentController.delete
+GET     /payment/token              controllers.PaymentController.getToken
+POST    /payment                    controllers.PaymentController.create
+GET     /payment                    controllers.PaymentController.read
+PUT     /payment                    controllers.PaymentController.update
+DELETE  /payment                    controllers.PaymentController.delete
 
 # User
-GET     /user/token             controllers.UserController.getToken
-POST    /user                   controllers.UserController.create
-GET     /user                   controllers.UserController.read
-PUT     /user                   controllers.UserController.update
-DELETE  /user                   controllers.UserController.delete
+GET     /user/token                 controllers.UserController.getToken
+POST    /user                       controllers.UserController.create
+GET     /user                       controllers.UserController.read
+PUT     /user                       controllers.UserController.update
+DELETE  /user                       controllers.UserController.delete
+
+# Return
+GET     /return/token               controllers.ReturnController.getToken
+POST    /return                     controllers.ReturnController.create
+GET     /return                     controllers.ReturnController.read
+PUT     /return                     controllers.ReturnController.update
+DELETE  /return                     controllers.ReturnController.delete
+
+# WishList
+GET     /wishlist/token             controllers.WishListController.getToken
+POST    /wishlist                   controllers.WishListController.create
+GET     /wishlist                   controllers.WishListController.read
+PUT     /wishlist                   controllers.WishListController.update
+DELETE  /wishlist                   controllers.WishListController.delete
+
+# DiscountCode
+GET     /discountcode/token         controllers.DiscountCodeController.getToken
+POST    /discountcode               controllers.DiscountCodeController.create
+GET     /discountcode               controllers.DiscountCodeController.read
+PUT     /discountcode               controllers.DiscountCodeController.update
+DELETE  /discountcode               controllers.DiscountCodeController.delete
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
