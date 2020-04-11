@@ -6,7 +6,7 @@ import play.filters.csrf.CSRF
 
 
 @Singleton
-class BasketController @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
+class DiscountCodeController @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
 
   def getToken = Action { implicit request =>
     val token = CSRF.getToken.get.value
@@ -14,19 +14,19 @@ class BasketController @Inject()(cc: ControllerComponents) extends AbstractContr
   }
 
   def create = Action {
-    Ok("Basket created!")
+    Ok("DiscountCode created!")
   }
 
   def read = Action {
-    Ok("Basket read!")
+    Ok("DiscountCode read!")
   }
 
   def update = Action { implicit request =>
-    Ok("Basket updated!")
+    Ok("DiscountCode updated!")
   }
 
   def delete = Action { implicit request =>
-    Ok("Basket deleted!")
+    Ok("DiscountCode deleted!")
   }
 
 }
