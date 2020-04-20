@@ -26,26 +26,24 @@ class ProductRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(imp
 
   private val product = TableQuery[ProductTable]
 
-  def create(name: String, description: String, price: Int, categories: Array[Long]): Future[Product] = db.run {
-    // We create a projection of just the name and age columns, since we're not inserting a value for the id column
-    (product.map(p => (p.name, p.description, p.price))
-      // Now define it to return the id, because we want to know what id was generated for the person
-      returning product.map(_.id)
-      // And we define a transformation for the returned value, which combines our original parameters with the
-      // returned id
-      into {case ((name,description,price),id) => {
+  def create(name: String, description: String, price: Int): Future[Long] = {
+    db.run {
+      (product.map(p => (p.name, p.description, p.price))
+        returning product.map(_.id)
+        into {case ((name,description, price),id) => {
         Product(id, name, description, price)
       }}
-      // And finally, insert the product into the database
-      ) += (name, description, price)
+        ) += (name, description, price)
+    }
+      .map(res => res.id)
   }
 
   def list(): Future[Seq[Product]] = db.run {
     product.result
   }
 
-  def getById(id: Long): Future[Product] = db.run {
-    product.filter(_.id === id).result.head
+  def getById(id: Long): Future[Option[Product]] = db.run {
+    product.filter(_.id === id).result.headOption
   }
 
   def delete(id: Long): Future[Unit] = db.run(product.filter(_.id === id).delete).map(_ => ())
@@ -54,6 +52,9 @@ class ProductRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(imp
     val productToUpdate: Product = new_product.copy(id)
     db.run(product.filter(_.id === id).update(productToUpdate)).map(_ => ())
   }
+
+  def exists(id: Long): Future[Boolean] =
+    db.run(product.filter(i => i.id === id).exists.result)
 
 }
 

@@ -1,32 +1,117 @@
 package controllers
 
 import javax.inject._
+import models.{ProductRepository, Return, ReturnRepository, UserRepository}
 import play.api.mvc._
 import play.filters.csrf.CSRF
 
+import scala.concurrent.{ExecutionContext, Future}
+
 
 @Singleton
-class ReturnController @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
+class ReturnController @Inject()(returnRepository: ReturnRepository,
+                                 productRepository: ProductRepository,
+                                 userRepository: UserRepository,
+                                 cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
 
   def getToken = Action { implicit request =>
     val token = CSRF.getToken.get.value
     Ok(token)
   }
 
-  def create = Action {
-    Ok("Return created!")
+  def create:Action[AnyContent] = Action.async { implicit request =>
+    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    if (!params.contains("userId")) {
+      Future(Ok("No userId parameter in query"))
+    }
+    else if (!params.contains("productId")) {
+      Future(Ok("No productId parameter in query"))
+    }
+    else if (!params.contains("status")) {
+      Future(Ok("No status parameter in query"))
+    }
+    else {
+      val userId = params("userId").toInt
+      val prodId = params("productId").toInt
+      val status = params("status")
+
+      userRepository.exists(userId).map(userExists => {
+        productRepository.exists(prodId).map(productExists => {
+          if (userExists && productExists) {
+            returnRepository.create(userId, prodId, status)
+          }
+        })
+      })
+
+      Future(Ok("Return created!"))
+    }
   }
 
-  def read = Action {
-    Ok("Return read!")
+  def read: Action[AnyContent] = Action.async { implicit request =>
+    val returns = returnRepository.list()
+    returns.map( return_elem => Ok(return_elem.toString()) )
   }
 
-  def update = Action { implicit request =>
-    Ok("Return updated!")
+  def readById: Action[AnyContent] = Action.async { implicit request =>
+
+    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    if (!params.contains("id")) {
+      Future(Ok("No id parameter in query"))
+    }
+    else {
+      val returns = returnRepository.getById(params("id").toLong)
+      returns.map(return_elem => Ok(return_elem.toString()))
+    }
+
+  }
+
+  def update = Action.async { implicit request =>
+    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+
+    if (!params.contains("id")) {
+      Future(Ok("No id parameter in query"))
+    }
+    else {
+
+      try {
+        val id = params("id").toLong
+        val returns = returnRepository.getById(id)
+
+        returns.map(return_elem => return_elem match {
+          case Some(r) => {
+            val userId = if (params.contains("userId")) params("userId").toLong else r.userId
+            val productId = if (params.contains("productId")) params("productId").toLong else r.productId
+            val status = if (params.contains("status")) params("status") else r.status
+
+            val newReturn = Return(id, userId, productId, status)
+            returnRepository.update(id, newReturn)
+            Ok("Return updated!")
+          }
+          case None => Ok("No object with such id")
+        })
+      }
+      catch {
+        case e: NumberFormatException => Future(Ok("Id, userId and productId have to be integer"))
+      }
+
+    }
   }
 
   def delete = Action { implicit request =>
-    Ok("Return deleted!")
+    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+
+    if (!params.contains("id")) {
+      Ok("No id parameter in query")
+    }
+    else {
+      try {
+        returnRepository.delete(params("id").toLong)
+        Ok("Return deleted!")
+      }
+      catch {
+        case e: NumberFormatException => Ok("Id has to be integer")
+      }
+    }
   }
 
 }

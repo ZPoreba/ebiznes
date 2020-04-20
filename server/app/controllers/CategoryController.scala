@@ -84,6 +84,7 @@ class CategoryController @Inject()(categoryRepository: CategoryRepository, produ
     }
     else {
       try {
+        categoryRepository.delete(params("id").toLong)
         productCategoryRepository.deleteCategory(params("id").toLong)
         Ok("Category deleted!")
       }

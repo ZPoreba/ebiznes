@@ -19,8 +19,86 @@ CREATE TABLE "product_category" (
  FOREIGN KEY(categoryId) references category(id)
 );
 
+CREATE TABLE "payment" (
+ "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+ "date" DATE NOT NULL,
+ "status" VARCHAR NOT NULL
+);
+
+CREATE TABLE "user" (
+ "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+ "firstName" VARCHAR NOT NULL,
+ "secondName" VARCHAR NOT NULL,
+ "email" VARCHAR NOT NULL,
+ "password" TEXT NOT NULL,
+ "address" VARCHAR NOT NULL
+);
+
+CREATE TABLE "cart_product" (
+ "userId" INTEGER NOT NULL,
+ "productId" INTEGER NOT NULL,
+ FOREIGN KEY(userId) references user(id),
+ FOREIGN KEY(productId) references product(id)
+);
+
+CREATE TABLE "wishlist_product" (
+ "userId" INTEGER NOT NULL,
+ "productId" INTEGER NOT NULL,
+ FOREIGN KEY(userId) references user(id),
+ FOREIGN KEY(productId) references product(id)
+);
+
+CREATE TABLE "discount_code" (
+ "productId" INTEGER NOT NULL,
+ "code" INTEGER NOT NULL,
+ FOREIGN KEY(productId) references product(id)
+);
+
+CREATE TABLE "return" (
+ "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+ "userId" INTEGER NOT NULL,
+ "productId" INTEGER NOT NULL,
+ "status" VARCHAR NOT NULL,
+ FOREIGN KEY(userId) references user(id),
+ FOREIGN KEY(productId) references product(id)
+);
+
+CREATE TABLE "opinion" (
+ "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+ "userId" INTEGER NOT NULL,
+ "productId" INTEGER NOT NULL,
+ "content" VARCHAR NOT NULL,
+ FOREIGN KEY(userId) references user(id),
+ FOREIGN KEY(productId) references product(id)
+);
+
+CREATE TABLE "order_t" (
+ "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+ "userId" INTEGER NOT NULL,
+ "paymentId" INTEGER NOT NULL,
+ "status" VARCHAR NOT NULL,
+ FOREIGN KEY(userId) references user(id),
+ FOREIGN KEY(paymentId) references payment(id)
+);
+
+CREATE TABLE "order_product" (
+ "orderId" INTEGER NOT NULL,
+ "productId" INTEGER NOT NULL,
+ FOREIGN KEY(orderId) references order_t(id),
+ FOREIGN KEY(productId) references product(id)
+);
+
 # --- !Downs
 
 DROP TABLE "category"
 DROP TABLE "product"
 DROP TABLE "product_category"
+DROP TABLE "payment"
+DROP TABLE "user"
+DROP TABLE "cart_product"
+DROP TABLE "wishlist_product"
+DROP TABLE "discount_code"
+DROP TABLE "return"
+DROP TABLE "opinion"
+DROP TABLE "order_t"
+DROP TABLE "order_product"

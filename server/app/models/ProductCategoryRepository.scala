@@ -8,7 +8,8 @@ import scala.concurrent.{ Future, ExecutionContext }
 @Singleton
 class ProductCategoryRepository @Inject() (val dbConfigProvider: DatabaseConfigProvider,
                                            val categoryRepository: CategoryRepository,
-                                           val productRepository: ProductRepository)(implicit ec: ExecutionContext) {
+                                           val productRepository: ProductRepository
+                                          )(implicit ec: ExecutionContext) {
   val dbConfig = dbConfigProvider.get[JdbcProfile]
 
   import dbConfig._
@@ -35,69 +36,25 @@ class ProductCategoryRepository @Inject() (val dbConfigProvider: DatabaseConfigP
   }
 
   import productRepository.ProductTable
-  import categoryRepository.CategoryTable
 
   private val joinProductCategory = TableQuery[ProductTable] join TableQuery[ProductCategoryTable] on (_.id === _.productId)
   private val productCategory  = TableQuery[ProductCategoryTable]
-  private val product = TableQuery[ProductTable]
-  private val category = TableQuery[CategoryTable]
 
-  def list(): Future[Seq[(Product, ProductCategory)]] = db.run {
-    joinProductCategory.result
+  def list(): Future[Any] = db.run {
+    joinProductCategory.map{ case (p, a) => (p.id, p.name, p.description, a.categoryId) }.result
   }
 
-  def getById(id: Long): Future[Option[Product]] = db.run {
-      product.filter(_.id === id).result.headOption
-    }
-
-
-  // Create one product and add to categories
-  def create(name: String, description: String, price: Int, categories: Array[Long]): Future[Object] = {
-    val prodId = db.run {
-        (product.map(p => (p.name, p.description, p.price))
-          returning product.map(_.id)
-          into {case ((name,description, price),id) => {
-            Product(id, name, description, price)
-          }}
-          ) += (name, description, price)
-      }
-      .map(res => res.id)
-
-    prodId.map(id => {
-      for (catId <- categories) {
-        val pc = ProductCategory(id, catId)
-        db.run(productCategory += pc)
-      }
-    }).map(_ => prodId)
-      .recover {
-        case ex: Exception => ex.getCause.getMessage
-      }
+  def getByProductId(id: Long): Future[Seq[Any]] = db.run {
+    joinProductCategory.map{ case (p, a) => (p.id, p.name, p.description, a.categoryId) }.filter(_._1 === id).result
   }
 
-  // Update one prodoct and add to categories if defined
-  def update(id: Long, new_product: Product, categories: Array[Long]): Future[Unit] = {
-    val productToUpdate: Product = new_product.copy(id)
-    for (catId <- categories) {
-      val pc = ProductCategory(id, catId)
-      db.run(productCategory += pc)
-    }
-    db.run(product.filter(_.id === id).update(productToUpdate)).map(_ => ())
+  def create(productId: Long, categoryId: Long): Unit = {
+    val pc = ProductCategory(productId, categoryId)
+    db.run(productCategory += pc)
   }
 
-  // Delete product and remove it from categories
-  def deleteProduct(id: Long): Future[Unit] = {
-    db.run(productCategory.filter(_.productId === id).delete).map(_ => ())
-    db.run(product.filter(_.id === id).delete).map(_ => ())
-  }
-
-  def deleteCategory(id: Long): Future[Unit] = {
-    db.run(productCategory.filter(_.categoryId === id).delete).map(_ => ())
-    db.run(category.filter(_.id === id).delete).map(_ => ())
-  }
-
-  def deleteProductCategories(id: Long): Future[Unit] = {
-    db.run(productCategory.filter(_.productId === id).delete).map(_ => ())
-  }
+  def deleteProduct(id: Long): Future[Unit] = db.run(productCategory.filter(_.productId === id).delete).map(_ => ())
+  def deleteCategory(id: Long): Future[Unit] = db.run(productCategory.filter(_.categoryId === id).delete).map(_ => ())
 
 }
 

@@ -1,13 +1,24 @@
 package controllers
 
 import javax.inject._
-import models.{Product, ProductCategoryRepository}
+import models.{CartProductRepository, CategoryRepository, DiscountCodeRepository, OpinionRepository, OrderProductRepository, OrderRepository, Product, ProductCategoryRepository, ProductRepository, ReturnRepository, WishListProductRepository}
 import play.api.mvc._
 import play.filters.csrf.CSRF
+
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ProductController @Inject()(productCategoryRepository: ProductCategoryRepository, cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
+class ProductController @Inject()(productRepository: ProductRepository,
+                                  productCategoryRepository: ProductCategoryRepository,
+                                  cartProductRepository: CartProductRepository,
+                                  categoryRepository: CategoryRepository,
+                                  wishListProductRepository: WishListProductRepository,
+                                  discountCodeRepository: DiscountCodeRepository,
+                                  returnRepository: ReturnRepository,
+                                  opinionRepository: OpinionRepository,
+                                  orderProductRepository: OrderProductRepository,
+                                  cc: MessagesControllerComponents)(implicit ec: ExecutionContext)
+                                  extends MessagesAbstractController(cc) {
 
   def getToken = Action { implicit request =>
     val token = CSRF.getToken.get.value
@@ -31,7 +42,18 @@ class ProductController @Inject()(productCategoryRepository: ProductCategoryRepo
     else {
       val catArray = params("categories").replaceAll(" ", "").split( ',' )
       val longCatArray = catArray.map(_.toLong)
-      productCategoryRepository.create(params("name"), params("description"), params("price").toInt, longCatArray).map(id => Ok(id.toString))
+      val prodId = productRepository.create(params("name"), params("description"), params("price").toInt)
+      prodId.map(id => {
+        for (catId <- longCatArray) {
+          categoryRepository.exists(catId).map(exists => {
+            if (exists) {
+              productCategoryRepository.create(id, catId)
+            }
+          })
+        }
+
+      })
+      Future(Ok("Product created!"))
     }
   }
 
@@ -47,7 +69,7 @@ class ProductController @Inject()(productCategoryRepository: ProductCategoryRepo
       Future(Ok("No id parameter in query"))
     }
     else {
-      val products = productCategoryRepository.getById(params("id").toLong)
+      val products = productCategoryRepository.getByProductId(params("id").toLong)
       products.map(product => Ok(product.toString()))
     }
 
@@ -63,7 +85,7 @@ class ProductController @Inject()(productCategoryRepository: ProductCategoryRepo
 
       try {
         val id = params("id").toLong
-        val products = productCategoryRepository.getById(id)
+        val products = productRepository.getById(id)
 
         products.map(product => product match {
           case Some(p) => {
@@ -74,10 +96,17 @@ class ProductController @Inject()(productCategoryRepository: ProductCategoryRepo
               .split(',')
               .map(_.toLong) else Array[Long]()
 
-            if (categories.size != 0) productCategoryRepository.deleteProductCategories(id) // if categories are not empty, delete old one
+            if (categories.size != 0) productCategoryRepository.deleteProduct(id) // if categories are not empty, delete old one
 
             val newProduct = Product(id, name, description, price)
-            productCategoryRepository.update(id, newProduct, categories)
+            productRepository.update(id, newProduct)
+            for (catId <- categories) {
+              categoryRepository.exists(catId).map(exists => {
+                if (exists) {
+                  productCategoryRepository.create(id, catId)
+                }
+              })
+            }
             Ok("Product updated!")
           }
           case None => Ok("No object with such id")
@@ -99,6 +128,13 @@ class ProductController @Inject()(productCategoryRepository: ProductCategoryRepo
     else {
       try {
         productCategoryRepository.deleteProduct(params("id").toLong)
+        productRepository.delete(params("id").toLong)
+        cartProductRepository.deleteProduct(params("id").toLong)
+        wishListProductRepository.deleteProduct(params("id").toLong)
+        discountCodeRepository.delete(params("id").toLong)
+        returnRepository.delete(params("id").toLong)
+        opinionRepository.deleteProduct(params("id").toLong)
+        orderProductRepository.deleteProduct(params("id").toLong)
         Ok("Product deleted!")
       }
       catch {

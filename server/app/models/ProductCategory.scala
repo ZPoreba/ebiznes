@@ -5,5 +5,5 @@ import play.api.libs.json.Json
 case class ProductCategory(productId: Long, categoryId: Long)
 
 object ProductCategory {
-  implicit val productFormat = Json.format[Product]
+  implicit val productCategoryFormat = Json.format[ProductCategory]
 }

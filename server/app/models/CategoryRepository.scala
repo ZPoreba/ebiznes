@@ -19,10 +19,8 @@ class CategoryRepository @Inject() (val dbConfigProvider: DatabaseConfigProvider
     def * = (id, name) <> ((Category.apply _).tupled, Category.unapply)
   }
 
-//  import productRepository.ProductCategoryTable
 
   val category = TableQuery[CategoryTable]
-//  val productCategory = TableQuery[ProductCategoryTable]
 
   def create(name: String): Future[Category] = db.run {
     (category.map(c => (c.name))
@@ -43,6 +41,11 @@ class CategoryRepository @Inject() (val dbConfigProvider: DatabaseConfigProvider
     val categoryToUpdate: Category = new_category.copy(id)
     db.run(category.filter(_.id === id).update(categoryToUpdate)).map(_ => ())
   }
+
+  def exists(id: Long): Future[Boolean] =
+    db.run(category.filter(i => i.id === id).exists.result)
+
+  def delete(id: Long): Future[Unit] = db.run(category.filter(_.id === id).delete).map(_ => ())
 
 }
 
