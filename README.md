@@ -2,8 +2,9 @@
 
 ZADANIE2 includes: <br />
 
-- models for: Cart, Product, Payment, User, Category, Order, Opinion, Return, WishList, DiscountCodes <br />
+- models with CRUD for: Cart, Product, Payment, User, Category, Order, Opinion, Return, WishList, DiscountCodes <br />
 - models for many to many relations <br />
+- controllers with CRUD for: Cart, Product, Payment, User, Category, Order, Opinion, Return, WishList, DiscountCodes <br />
 
 ## IMPORTANT
 
