@@ -20,34 +20,41 @@ POST   /addproducthandle            controllers.ProductController.createHandle
 GET    /updateproduct/:id           controllers.ProductController.update(id: Long)
 POST   /updateproducthandle         controllers.ProductController.updateHandle
 
-GET    /deleteproduct/:id          controllers.ProductController.delete(id: Long)
+GET    /deleteproduct/:id           controllers.ProductController.delete(id: Long)
 
 # Cart
-GET     /cart/token                 controllers.CartController.getToken
-GET     /carts                      controllers.CartController.read
-POST    /cart                       controllers.CartController.create
-GET     /cart                       controllers.CartController.readById
-PUT     /cart                       controllers.CartController.update
-DELETE  /cart                       controllers.CartController.delete
+GET     /readcarts                  controllers.CartController.read
+GET     /readcart/:id               controllers.CartController.readById(id: Long)
+
+GET     /addcart                    controllers.CartController.create
+GET     /addcarthandle              controllers.CartController.createHandle
+
+GET     /updatecart                 controllers.CartController.update
+GET     /deletecart/:id             controllers.CartController.delete(id: Long)
 
 # Category
-GET     /category/token             controllers.CategoryController.getToken
-GET     /categories                 controllers.CategoryController.read
+GET     /readcategories             controllers.CategoryController.read
+GET     /readcategory/:id           controllers.CategoryController.readById(id: Long)
 
 GET     /addcategory                controllers.CategoryController.create
 POST    /addcategoryhandle          controllers.CategoryController.createHandle
 
-GET     /category                   controllers.CategoryController.readById
-PUT     /category                   controllers.CategoryController.update
-DELETE  /category                   controllers.CategoryController.delete
+GET     /updatecategory/:id         controllers.CategoryController.update(id: Long)
+POST    /updatecategoryhandle       controllers.CategoryController.updateHandle
+
+GET     /deletecategory/:id         controllers.CategoryController.delete(id: Long)
 
 # Opinion
-GET     /opinion/token              controllers.OpinionController.getToken
-GET     /opinions                   controllers.OpinionController.read
-POST    /opinion                    controllers.OpinionController.create
-GET     /opinion                    controllers.OpinionController.readById
-PUT     /opinion                    controllers.OpinionController.update
-DELETE  /opinion                    controllers.OpinionController.delete
+GET     /readopinions               controllers.OpinionController.read
+GET     /readopinion/:id            controllers.OpinionController.readById(id: Long)
+
+GET     /addopinion                 controllers.OpinionController.create
+POST    /addopinionhandle           controllers.OpinionController.createHandle
+
+GET     /updateopinion/:id          controllers.OpinionController.update(id: Long)
+GET     /updateopinionhandle        controllers.OpinionController.updateHandle
+
+GET     /deleteopinion/:id          controllers.OpinionController.delete(id: Long)
 
 # Order
 GET     /order/token                controllers.OrderController.getToken

@@ -1,11 +1,14 @@
 package controllers
 
 import javax.inject._
-import models.{OpinionRepository, ProductRepository, Opinion, UserRepository}
+import models.{Opinion, OpinionRepository, ProductRepository, UserRepository}
+import play.api.data.Form
+import play.api.data.Forms.mapping
 import play.api.mvc._
 import play.filters.csrf.CSRF
-
-import scala.concurrent.{ExecutionContext, Future}
+import play.api.data.Forms._
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 
 @Singleton
@@ -14,104 +17,93 @@ class OpinionController @Inject()(opinionRepository: OpinionRepository,
                                   userRepository: UserRepository,
                                   cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
 
+  val createForm: Form[CreateOpinionForm] = Form {
+    mapping(
+      "userId" -> longNumber,
+      "productId" -> longNumber,
+      "content" -> nonEmptyText
+    )(CreateOpinionForm.apply)(CreateOpinionForm.unapply)
+  }
+
+  val updateForm: Form[UpdateOpinionForm] = Form {
+    mapping(
+      "id" -> longNumber,
+      "userId" -> longNumber,
+      "productId" -> longNumber,
+      "content" -> nonEmptyText
+    )(UpdateOpinionForm.apply)(UpdateOpinionForm.unapply)
+  }
+
   def getToken = Action { implicit request =>
     val token = CSRF.getToken.get.value
     Ok(token)
   }
 
-  def create:Action[AnyContent] = Action.async { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
-    if (!params.contains("userId")) {
-      Future(Ok("No userId parameter in query"))
-    }
-    else if (!params.contains("productId")) {
-      Future(Ok("No productId parameter in query"))
-    }
-    else if (!params.contains("content")) {
-      Future(Ok("No content parameter in query"))
-    }
-    else {
-      val userId = params("userId").toInt
-      val prodId = params("productId").toInt
-      val content = params("content")
-
-      userRepository.exists(userId).map(userExists => {
-        productRepository.exists(prodId).map(productExists => {
-          if (userExists && productExists) {
-            opinionRepository.create(userId, prodId, content)
-          }
-        })
-      })
-
-      Future(Ok("Opinion created!"))
-    }
+  def create: Action[AnyContent] = Action { implicit request =>
+    Ok(views.html.opinionadd(createForm))
   }
 
-  def read: Action[AnyContent] = Action.async { implicit request =>
-    val opinions = opinionRepository.list()
-    opinions.map( opinion => Ok(opinion.toString()) )
-  }
+  def createHandle = Action.async { implicit request =>
 
-  def readById: Action[AnyContent] = Action.async { implicit request =>
-
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
-    if (!params.contains("id")) {
-      Future(Ok("No id parameter in query"))
-    }
-    else {
-      val opinions = opinionRepository.getById(params("id").toLong)
-      opinions.map(opinion => Ok(opinion.toString()))
-    }
+    createForm.bindFromRequest.fold(
+      errorForm => {
+        Future.successful(
+          BadRequest(views.html.opinionadd(errorForm))
+        )
+      },
+      opinion => {
+        opinionRepository.create(opinion.userId, opinion.productId, opinion.content).map { _ =>
+          Redirect(routes.OpinionController.create()).flashing("success" -> "opinion.created")
+        }
+      }
+    )
 
   }
 
-  def update = Action.async { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+  def readById(id: Long): Action[AnyContent] = Action.async { implicit request =>
+    val opinion = opinionRepository.getByIdOption(id)
 
-    if (!params.contains("id")) {
-      Future(Ok("No id parameter in query"))
-    }
-    else {
-
-      try {
-        val id = params("id").toLong
-        val opinions = opinionRepository.getById(id)
-
-        opinions.map(opinion => opinion match {
-          case Some(o) => {
-            val userId = if (params.contains("userId")) params("userId").toLong else o.userId
-            val productId = if (params.contains("productId")) params("productId").toLong else o.productId
-            val content = if (params.contains("content")) params("content") else o.content
-
-            val newOpinion = Opinion(id, userId, productId, content)
-            opinionRepository.update(id, newOpinion)
-            Ok("Opinion updated!")
-          }
-          case None => Ok("No object with such id")
-        })
-      }
-      catch {
-        case e: NumberFormatException => Future(Ok("Id, userId and productId have to be integer"))
-      }
-
-    }
+    opinion.map(cat => cat match {
+      case Some(o) => Ok(views.html.opinionread(o))
+      case None => Redirect(routes.OpinionController.read())
+    })
   }
 
-  def delete = Action { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+  def read: Action[AnyContent] = Action { implicit request =>
+    val opinions = Await.result(opinionRepository.list(), Duration.Inf)
+    Ok(views.html.opinionsread(opinions))
+  }
 
-    if (!params.contains("id")) {
-      Ok("No id parameter in query")
-    }
-    else {
-      try {
-        opinionRepository.delete(params("id").toLong)
-        Ok("Opinion deleted!")
+  def update(id: Long): Action[AnyContent] = Action { implicit request =>
+    val opinion_result = Await.result(opinionRepository.getById(id), Duration.Inf)
+
+    val opForm = updateForm.fill(UpdateOpinionForm(opinion_result.id, opinion_result.userId, opinion_result.productId, opinion_result.content))
+    Ok(views.html.opinionupdate(opForm))
+  }
+
+  def updateHandle = Action.async { implicit request =>
+
+    updateForm.bindFromRequest.fold(
+      errorForm => {
+        Future.successful(
+          BadRequest(views.html.opinionupdate(errorForm))
+        )
+      },
+      opinion => {
+        opinionRepository.update(opinion.id, Opinion(opinion.id, opinion.userId, opinion.productId, opinion.content)).map { _ =>
+          Redirect(routes.OpinionController.update(opinion.id)).flashing("success" -> "opinion updated")
+        }
       }
-      catch {
-        case e: NumberFormatException => Ok("Id has to be integer")
-      }
-    }
+    )
+
+  }
+
+  def delete(id: Long): Action[AnyContent] = Action {
+        opinionRepository.delete(id)
+    Redirect("/readopinions")
   }
 
 }
+
+case class CreateOpinionForm(userId: Long, productId: Long, content: String)
+case class UpdateOpinionForm(id: Long, userId: Long, productId: Long, content: String)

@@ -1,0 +1,11 @@
+@(cart: User, product: Seq[(Long, Long)])
+
+<b>@cart.id</b>
+
+<b>products: </b>
+
+  @for(prod <- product){
+    @prod._2
+  }
+
+<a href="@controllers.routes.CartController.delete(cart.id)">Delete</a>

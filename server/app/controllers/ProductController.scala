@@ -105,8 +105,6 @@ class ProductController @Inject()(productRepository: ProductRepository,
     }
     val cat_list_seq = product_categories.toList
 
-    print(cat_list_seq)
-
     Ok(views.html.productsread(products, cat_list_seq))
   }
 
@@ -175,7 +173,7 @@ class ProductController @Inject()(productRepository: ProductRepository,
         }
       }
     )
-    
+
   }
 
   def delete(id: Long): Action[AnyContent]  = Action {

@@ -37,7 +37,11 @@ class UserRepository @Inject() (val dbConfigProvider: DatabaseConfigProvider)(im
     user.result
   }
 
-  def getById(id: Long): Future[Option[User]] = db.run {
+  def getById(id: Long): Future[User] = db.run {
+    user.filter(_.id === id).result.head
+  }
+
+  def getByIdOption(id: Long): Future[Option[User]] = db.run {
     user.filter(_.id === id).result.headOption
   }
 

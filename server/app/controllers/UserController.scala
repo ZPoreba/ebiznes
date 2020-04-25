@@ -56,7 +56,7 @@ class UserController @Inject()(userRepository: UserRepository,
       Future(Ok("No id parameter in query"))
     }
     else {
-      val users = userRepository.getById(params("id").toLong)
+      val users = userRepository.getByIdOption(params("id").toLong)
       users.map(user => user match {
         case Some(u) => Ok(u.toString())
         case None => Ok("No user with id")
@@ -75,7 +75,7 @@ class UserController @Inject()(userRepository: UserRepository,
 
       try {
         val id = params("id").toLong
-        val users = userRepository.getById(id)
+        val users = userRepository.getByIdOption(id)
 
         users.map(user => user match {
           case Some(u) => {

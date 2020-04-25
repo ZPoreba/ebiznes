@@ -1,0 +1,7 @@
+@(category: Category)
+
+<b>@category.name</b>
+  @category.id
+
+<a href="@controllers.routes.CategoryController.update(category.id)">Edit</a>
+<a href="@controllers.routes.CategoryController.delete(category.id)">Delete</a>

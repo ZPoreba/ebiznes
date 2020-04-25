@@ -1,0 +1,16 @@
+@(opinion: Form[CreateOpinionForm])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@import helper._
+
+@flash.get("success").getOrElse("")
+
+@form(routes.OpinionController.createHandle()) {
+    @helper.CSRF.formField
+    @inputText(opinion("userId"))
+    @inputText(opinion("productId"))
+    @inputText(opinion("content"))
+
+    <div class="buttons">
+        <input type="submit" value="Add Opinion"/>
+    </div>
+}

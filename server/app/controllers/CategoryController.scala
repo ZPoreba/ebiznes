@@ -7,8 +7,8 @@ import play.api.data.Forms.mapping
 import play.api.data.Forms._
 import play.api.mvc._
 import play.filters.csrf.CSRF
-
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 @Singleton
 class CategoryController @Inject()(categoryRepository: CategoryRepository, productCategoryRepository: ProductCategoryRepository, cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
@@ -19,24 +19,23 @@ class CategoryController @Inject()(categoryRepository: CategoryRepository, produ
     )(CreateCategoryForm.apply)(CreateCategoryForm.unapply)
   }
 
+  val updateForm: Form[UpdateCategoryForm] = Form {
+    mapping(
+      "id" -> longNumber,
+      "name" -> nonEmptyText
+    )(UpdateCategoryForm.apply)(UpdateCategoryForm.unapply)
+  }
+
   def getToken = Action { implicit request =>
     val token = CSRF.getToken.get.value
     Ok(token)
   }
 
-  def create:Action[AnyContent] = Action { implicit request =>
+  def create: Action[AnyContent] = Action { implicit request =>
     Ok(views.html.categoryadd(categoryForm))
   }
 
   def createHandle = Action.async { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
-    if (!params.contains("name")) {
-      Future(Ok("No name parameter in query"))
-    }
-    else {
-      categoryRepository.create(params("name"))
-      Future(Ok("Category created!"))
-    }
 
     categoryForm.bindFromRequest.fold(
       errorForm => {
@@ -45,82 +44,57 @@ class CategoryController @Inject()(categoryRepository: CategoryRepository, produ
         )
       },
       product => {
-          categoryRepository.create(product.name).map { _ =>
+        categoryRepository.create(product.name).map { _ =>
           Redirect(routes.CategoryController.create()).flashing("success" -> "category.created")
         }
       }
     )
   }
 
-  def read: Action[AnyContent] = Action.async { implicit request =>
-    val categories = categoryRepository.list()
-    categories.map( category => Ok(category.toString()) )
+  def readById(id: Long): Action[AnyContent] = Action.async { implicit request =>
+    val category = categoryRepository.getByIdOption(id)
+
+    category.map(cat => cat match {
+      case Some(c) => Ok(views.html.categoryread(c))
+      case None => Redirect(routes.CategoryController.read())
+    })
   }
 
-  def readById: Action[AnyContent] = Action.async { implicit request =>
+  def read: Action[AnyContent] = Action { implicit request =>
+    val categories = Await.result(categoryRepository.list(), Duration.Inf)
+    Ok(views.html.categoriesread(categories))
+  }
 
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
-    if (!params.contains("id")) {
-      Future(Ok("No id parameter in query"))
-    }
-    else {
-      val categories = categoryRepository.getById(params("id").toLong)
-      categories.map(category => category match {
-        case Some(c) => Ok(c.toString())
-        case None => Ok("No product with id")
-      })
-    }
+  def update(id: Long): Action[AnyContent] = Action { implicit request =>
+    val category_result = Await.result(categoryRepository.getById(id), Duration.Inf)
+
+    val catForm = updateForm.fill(UpdateCategoryForm(category_result.id, category_result.name))
+    Ok(views.html.categoryupdate(catForm))
+  }
+
+  def updateHandle = Action.async { implicit request =>
+
+    updateForm.bindFromRequest.fold(
+      errorForm => {
+        Future.successful(
+          BadRequest(views.html.categoryupdate(errorForm))
+        )
+      },
+      ccategory => {
+        categoryRepository.update(ccategory.id, Category(ccategory.id, ccategory.name)).map { _ =>
+          Redirect(routes.CategoryController.update(ccategory.id)).flashing("success" -> "product updated")
+        }
+      }
+    )
 
   }
 
-  def update = Action.async { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
-
-    if (!params.contains("id")) {
-      Future(Ok("No id parameter in query"))
-    }
-    else {
-
-      try {
-        val id = params("id").toLong
-        val categories = categoryRepository.getById(id)
-
-        categories.map(category => category match {
-          case Some(c) => {
-            val name = if (params.contains("name")) params("name") else c.name
-
-            val newCategory = Category(id, name)
-            categoryRepository.update(id, newCategory)
-            Ok("Category updated!")
-          }
-          case None => Ok("No object with such id")
-        })
-      }
-      catch {
-        case e: NumberFormatException => Future(Ok("Id has to be integer"))
-      }
-
-    }
+  def delete(id: Long): Action[AnyContent] = Action {
+    categoryRepository.delete(id)
+    productCategoryRepository.deleteCategory(id)
+    Redirect("/readcategories")
   }
-
-  def delete = Action { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
-
-    if (!params.contains("id")) {
-      Ok("No id parameter in query")
-    }
-    else {
-      try {
-        categoryRepository.delete(params("id").toLong)
-        productCategoryRepository.deleteCategory(params("id").toLong)
-        Ok("Category deleted!")
-      }
-      catch {
-        case e: NumberFormatException => Ok("Id has to be integer")
-      }
-    }
-  }
-
 }
 
 case class CreateCategoryForm(name: String)
+case class UpdateCategoryForm(id: Long, name: String)
