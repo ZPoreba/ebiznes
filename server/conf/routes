@@ -11,12 +11,16 @@ GET     /count                      controllers.CountController.count
 GET     /message                    controllers.AsyncController.message
 
 # Product
-GET     /product/token              controllers.ProductController.getToken
-GET     /products                   controllers.ProductController.read
-POST    /product                    controllers.ProductController.create
-GET     /product                    controllers.ProductController.readById
-PUT     /product                    controllers.ProductController.update
-DELETE  /product                    controllers.ProductController.delete
+GET     /readproducts               controllers.ProductController.read
+GET     /readproduct/:id            controllers.ProductController.readById(id: Long)
+
+GET    /addproduct                  controllers.ProductController.create
+POST   /addproducthandle            controllers.ProductController.createHandle
+
+GET    /updateproduct/:id           controllers.ProductController.update(id: Long)
+POST   /updateproducthandle         controllers.ProductController.updateHandle
+
+GET    /deleteproduct/:id          controllers.ProductController.delete(id: Long)
 
 # Cart
 GET     /cart/token                 controllers.CartController.getToken
@@ -29,7 +33,10 @@ DELETE  /cart                       controllers.CartController.delete
 # Category
 GET     /category/token             controllers.CategoryController.getToken
 GET     /categories                 controllers.CategoryController.read
-POST    /category                   controllers.CategoryController.create
+
+GET     /addcategory                controllers.CategoryController.create
+POST    /addcategoryhandle          controllers.CategoryController.createHandle
+
 GET     /category                   controllers.CategoryController.readById
 PUT     /category                   controllers.CategoryController.update
 DELETE  /category                   controllers.CategoryController.delete

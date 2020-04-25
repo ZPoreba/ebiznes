@@ -2,19 +2,33 @@ package controllers
 
 import javax.inject._
 import models.{Category, CategoryRepository, ProductCategoryRepository}
+import play.api.data.Form
+import play.api.data.Forms.mapping
+import play.api.data.Forms._
 import play.api.mvc._
 import play.filters.csrf.CSRF
+
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class CategoryController @Inject()(categoryRepository: CategoryRepository, productCategoryRepository: ProductCategoryRepository, cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
+
+  val categoryForm: Form[CreateCategoryForm] = Form {
+    mapping(
+      "name" -> nonEmptyText
+    )(CreateCategoryForm.apply)(CreateCategoryForm.unapply)
+  }
 
   def getToken = Action { implicit request =>
     val token = CSRF.getToken.get.value
     Ok(token)
   }
 
-  def create = Action.async { implicit request =>
+  def create:Action[AnyContent] = Action { implicit request =>
+    Ok(views.html.categoryadd(categoryForm))
+  }
+
+  def createHandle = Action.async { implicit request =>
     val params = request.queryString.map { case (k,v) => k -> v.mkString }
     if (!params.contains("name")) {
       Future(Ok("No name parameter in query"))
@@ -23,6 +37,19 @@ class CategoryController @Inject()(categoryRepository: CategoryRepository, produ
       categoryRepository.create(params("name"))
       Future(Ok("Category created!"))
     }
+
+    categoryForm.bindFromRequest.fold(
+      errorForm => {
+        Future.successful(
+          BadRequest(views.html.categoryadd(errorForm))
+        )
+      },
+      product => {
+          categoryRepository.create(product.name).map { _ =>
+          Redirect(routes.CategoryController.create()).flashing("success" -> "category.created")
+        }
+      }
+    )
   }
 
   def read: Action[AnyContent] = Action.async { implicit request =>
@@ -95,3 +122,5 @@ class CategoryController @Inject()(categoryRepository: CategoryRepository, produ
   }
 
 }
+
+case class CreateCategoryForm(name: String)

@@ -1,0 +1,21 @@
+@(products: Seq[Product], category: List[Seq[ProductCategory]])
+@import java.math.BigInteger; var i=0
+
+
+  @for(product <- products) {
+    <li>
+      <b>@product.name</b>
+      @product.description
+      @product.price
+      <b>categories: </b>
+      @for(c <- category(i)) {
+        @c.categoryId
+      }
+
+      <a href="@controllers.routes.ProductController.update(product.id)">Edit</a>
+      <a href="@controllers.routes.ProductController.delete(product.id)">Delete</a>
+    </li>
+    @(i+=1)
+  }
+
+

@@ -42,7 +42,11 @@ class ProductRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(imp
     product.result
   }
 
-  def getById(id: Long): Future[Option[Product]] = db.run {
+  def getById(id: Long): Future[Product] = db.run {
+    product.filter(_.id === id).result.head
+  }
+
+  def getByIdOption(id: Long): Future[Option[Product]] = db.run {
     product.filter(_.id === id).result.headOption
   }
 

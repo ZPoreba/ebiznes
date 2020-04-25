@@ -40,12 +40,12 @@ class ProductCategoryRepository @Inject() (val dbConfigProvider: DatabaseConfigP
   private val joinProductCategory = TableQuery[ProductTable] join TableQuery[ProductCategoryTable] on (_.id === _.productId)
   private val productCategory  = TableQuery[ProductCategoryTable]
 
-  def list(): Future[Any] = db.run {
+  def list(): Future[Seq[(Long, String, String, Long)]] = db.run {
     joinProductCategory.map{ case (p, a) => (p.id, p.name, p.description, a.categoryId) }.result
   }
 
-  def getByProductId(id: Long): Future[Seq[Any]] = db.run {
-    joinProductCategory.map{ case (p, a) => (p.id, p.name, p.description, a.categoryId) }.filter(_._1 === id).result
+  def getByProductId(id: Long): Future[Seq[ProductCategory]] = db.run {
+    productCategory.filter(_.productId === id).result
   }
 
   def create(productId: Long, categoryId: Long): Unit = {
