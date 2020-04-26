@@ -80,9 +80,9 @@ class CategoryController @Inject()(categoryRepository: CategoryRepository, produ
           BadRequest(views.html.categoryupdate(errorForm))
         )
       },
-      ccategory => {
-        categoryRepository.update(ccategory.id, Category(ccategory.id, ccategory.name)).map { _ =>
-          Redirect(routes.CategoryController.update(ccategory.id)).flashing("success" -> "product updated")
+      category => {
+        categoryRepository.update(category.id, Category(category.id, category.name)).map { _ =>
+          Redirect(routes.CategoryController.update(category.id)).flashing("success" -> "category updated")
         }
       }
     )

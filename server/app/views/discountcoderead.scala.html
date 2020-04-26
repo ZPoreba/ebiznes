@@ -1,0 +1,6 @@
+@(discountcode: DiscountCode)
+
+<b>@discountcode.productId</b>
+  @discountcode.code
+
+<a href="@controllers.routes.DiscountCodeController.delete(discountcode.productId)">Delete</a>

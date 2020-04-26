@@ -1,0 +1,16 @@
+@(returns: Seq[Return])
+
+  @for(return_t <- returns) {
+    <li>
+      <b>@return_t.id</b>
+      @return_t.userId
+      @return_t.productId
+      @return_t.status
+
+      <a href="@controllers.routes.ReturnController.update(return_t.id)">Edit</a>
+      <a href="@controllers.routes.ReturnController.delete(return_t.id)">Delete</a>
+    </li>
+
+  }
+
+

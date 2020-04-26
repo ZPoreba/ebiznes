@@ -56,7 +56,7 @@ class WishListProductRepository @Inject() (val dbConfigProvider: DatabaseConfigP
     joinWishListProduct.map{ case (u, p) => (u.id, p.productId) }.result
   }
 
-  def getByUserId(id: Long): Future[Seq[Any]] = db.run {
+  def getByUserId(id: Long): Future[Seq[(Long, Long)]] = db.run {
     joinWishListProduct.map{ case (u, p) => (u.id, p.productId) }.filter(_._1 === id).result
   }
 

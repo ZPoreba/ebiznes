@@ -52,57 +52,83 @@ GET     /addopinion                 controllers.OpinionController.create
 POST    /addopinionhandle           controllers.OpinionController.createHandle
 
 GET     /updateopinion/:id          controllers.OpinionController.update(id: Long)
-GET     /updateopinionhandle        controllers.OpinionController.updateHandle
+POST    /updateopinionhandle        controllers.OpinionController.updateHandle
 
 GET     /deleteopinion/:id          controllers.OpinionController.delete(id: Long)
 
 # Order
-GET     /order/token                controllers.OrderController.getToken
-GET     /orders                     controllers.OrderController.read
-POST    /order                      controllers.OrderController.create
-GET     /order                      controllers.OrderController.readById
-PUT     /order                      controllers.OrderController.update
-DELETE  /order                      controllers.OrderController.delete
+GET     /readorders                 controllers.OrderController.read
+GET     /readorder/:id              controllers.OrderController.readById(id: Long)
+
+GET     /addorder                   controllers.OrderController.create
+POST    /addorderhandle             controllers.OrderController.createHandle
+
+GET     /updateorder/:id            controllers.OrderController.update(id: Long)
+POST    /updateorderhandle          controllers.OrderController.updateHandle
+
+GET     /deleteorder/:id            controllers.OrderController.delete(id: Long)
 
 # Payment
-GET     /payment/token              controllers.PaymentController.getToken
-GET     /payments                   controllers.PaymentController.read
-POST    /payment                    controllers.PaymentController.create
-GET     /payment                    controllers.PaymentController.readById
-PUT     /payment                    controllers.PaymentController.update
-DELETE  /payment                    controllers.PaymentController.delete
+GET     /readpayments               controllers.PaymentController.read
+GET     /readpayment/:id            controllers.PaymentController.readById(id: Long)
+
+GET     /addpayment                 controllers.PaymentController.create
+POST    /addpaymenthandle           controllers.PaymentController.createHandle
+
+GET     /updatepayment/:id          controllers.PaymentController.update(id: Long)
+POST    /updatepaymenthandle        controllers.PaymentController.updateHandle
+
+GET     /deletepayment/:id          controllers.PaymentController.delete(id: Long)
 
 # User
-GET     /user/token                 controllers.UserController.getToken
-GET     /users                      controllers.UserController.read
-POST    /user                       controllers.UserController.create
-GET     /user                       controllers.UserController.readById
-PUT     /user                       controllers.UserController.update
-DELETE  /user                       controllers.UserController.delete
+GET     /readusers                  controllers.UserController.read
+GET     /readuser/:id               controllers.UserController.readById(id: Long)
+
+GET     /adduser                    controllers.UserController.create
+POST    /adduserhandle              controllers.UserController.createHandle
+
+GET     /updateuser/:id             controllers.UserController.update(id: Long)
+POST    /updateuserhandle           controllers.UserController.updateHandle
+
+GET     /deleteuser/:id             controllers.UserController.delete(id: Long)
 
 # Return
-GET     /return/token               controllers.ReturnController.getToken
-GET     /returns                    controllers.ReturnController.read
-POST    /return                     controllers.ReturnController.create
-GET     /return                     controllers.ReturnController.readById
-PUT     /return                     controllers.ReturnController.update
-DELETE  /return                     controllers.ReturnController.delete
+
+GET     /readreturns                 controllers.ReturnController.read
+GET     /readreturn/:id              controllers.ReturnController.readById(id: Long)
+
+GET     /addreturn                   controllers.ReturnController.create
+POST    /addreturnhandle             controllers.ReturnController.createHandle
+
+GET     /updatereturn/:id            controllers.ReturnController.update(id: Long)
+POST    /updatereturnhandle          controllers.ReturnController.updateHandle
+
+GET     /deletereturn/:id            controllers.ReturnController.delete(id: Long)
 
 # WishList
-GET     /wishlist/token             controllers.WishListController.getToken
-GET     /wishlists                  controllers.WishListController.read
-POST    /wishlist                   controllers.WishListController.create
-GET     /wishlist                   controllers.WishListController.readById
-PUT     /wishlist                   controllers.WishListController.update
-DELETE  /wishlist                   controllers.WishListController.delete
+
+GET     /readwishlists               controllers.WishListController.read
+GET     /readwishlist/:id            controllers.WishListController.readById(id: Long)
+
+GET     /addwishlist                 controllers.WishListController.create
+POST    /addwishlisthandle           controllers.WishListController.createHandle
+
+GET     /updatewishlist              controllers.WishListController.update
+
+GET     /deletewishlist/:id          controllers.WishListController.delete(id: Long)
+
 
 # DiscountCode
-GET     /discountcode/token         controllers.DiscountCodeController.getToken
-GET     /discountcodes              controllers.DiscountCodeController.read
-POST    /discountcode               controllers.DiscountCodeController.create
-GET     /discountcode               controllers.DiscountCodeController.readById
-PUT     /discountcode               controllers.DiscountCodeController.update
-DELETE  /discountcode               controllers.DiscountCodeController.delete
+
+GET     /readdiscountcodes          controllers.DiscountCodeController.read
+GET     /readdiscountcode/:id       controllers.DiscountCodeController.readById(id: Long)
+
+GET     /adddiscountcode            controllers.DiscountCodeController.create
+POST    /adddiscountcodehandle      controllers.DiscountCodeController.createHandle
+
+GET     /updatediscountcode         controllers.DiscountCodeController.update
+
+GET     /deletediscountcode/:id     controllers.DiscountCodeController.delete(id: Long)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

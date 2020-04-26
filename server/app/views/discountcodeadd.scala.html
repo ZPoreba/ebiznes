@@ -1,0 +1,22 @@
+@(discountcode: Form[CreateDiscountCodeForm], product: Seq[Product])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@import helper._
+
+@flash.get("success").getOrElse("")
+
+@form(routes.DiscountCodeController.createHandle()) {
+    @helper.CSRF.formField
+
+    products:
+    <select name="productId" id="productId">
+    @for(p <- product){
+        <option value="@p.id">@p.name</option>
+    }
+    </select>
+
+    @inputText(discountcode("code"))
+
+    <div class="buttons">
+        <input type="submit" value="Add DiscountCode"/>
+    </div>
+}

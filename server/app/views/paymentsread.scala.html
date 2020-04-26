@@ -1,0 +1,15 @@
+@(payments: Seq[Payment])
+
+  @for(payment <- payments) {
+    <li>
+      <b>@payment.id</b>
+      @payment.date
+      @payment.status
+
+      <a href="@controllers.routes.PaymentController.update(payment.id)">Edit</a>
+      <a href="@controllers.routes.PaymentController.delete(payment.id)">Delete</a>
+    </li>
+
+  }
+
+

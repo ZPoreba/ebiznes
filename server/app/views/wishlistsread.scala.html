@@ -1,0 +1,19 @@
+@(wishlists: Seq[User], product: List[Seq[(Long, Long)]])
+@import java.math.BigInteger; var i=0
+
+
+@for(wishlist <- wishlists) {
+  <li>
+    <b>@wishlist.id</b>
+    <b>products: </b>
+    @for(p <- product(i)) {
+      @p._2
+    }
+
+    <a href="@controllers.routes.WishListController.delete(wishlist.id)">Delete</a>
+  </li>
+  @(i+=1)
+}
+
+
+

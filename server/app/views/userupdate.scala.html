@@ -1,0 +1,19 @@
+@(category: Form[UpdateUserForm])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@import helper._
+
+@flash.get("success").getOrElse("")
+
+@form(routes.UserController.updateHandle()) {
+  @helper.CSRF.formField
+  <input name="id" id="id" value="@category("id").value" type="hidden" />
+  @inputText(category("firstName"))
+  @inputText(category("secondName"))
+  @inputText(category("email"))
+  @inputText(category("password"))
+  @inputText(category("address"))
+
+  <div class="buttons">
+    <input type="submit" value="Update Category"/>
+  </div>
+}

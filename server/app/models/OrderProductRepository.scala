@@ -56,7 +56,7 @@ class OrderProductRepository @Inject() (val dbConfigProvider: DatabaseConfigProv
     joinOrderProduct.map{ case (o, p) => (o.id, o.userId, o.paymentId, o.status, p.productId) }.result
   }
 
-  def getByOrderId(id: Long): Future[Seq[Any]] = db.run {
+  def getByOrderId(id: Long): Future[Seq[(Long, Long, Long, String, Long)]] = db.run {
     joinOrderProduct.map{ case (o, p) => (o.id, o.userId, o.paymentId, o.status, p.productId) }.filter(_._1 === id).result
   }
 

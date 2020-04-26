@@ -42,7 +42,11 @@ class OrderRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(impli
     order.result
   }
 
-  def getById(id: Long): Future[Option[Order]] = db.run {
+  def getById(id: Long): Future[Order] = db.run {
+    order.filter(_.id === id).result.head
+  }
+
+  def getByIdOption(id: Long): Future[Option[Order]] = db.run {
     order.filter(_.id === id).result.headOption
   }
 

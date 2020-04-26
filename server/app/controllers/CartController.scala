@@ -41,6 +41,7 @@ class CartController @Inject()(cartProductRepository: CartProductRepository,
   }
 
   def create:Action[AnyContent] = Action.async { implicit request =>
+    var usr = Await.result(userRepository.list(), Duration.Inf)
     val products = productRepository.list()
     products.map (prod => {
       var prod_list = new ListBuffer[(String, String)]()
@@ -49,12 +50,12 @@ class CartController @Inject()(cartProductRepository: CartProductRepository,
       }
       val prod_list_seq = prod_list.toList
 
-      Ok(views.html.cartadd(createForm, prod_list_seq))
+      Ok(views.html.cartadd(createForm, prod_list_seq, usr))
     })
   }
 
   def createHandle = Action { implicit request =>
-
+    var usr = Await.result(userRepository.list(), Duration.Inf)
     var produ:Seq[Product] = Seq[Product]()
     val products = productRepository.list().onComplete{
       case Success(prod) => produ = prod
@@ -69,7 +70,7 @@ class CartController @Inject()(cartProductRepository: CartProductRepository,
 
     createForm.bindFromRequest.fold(
       errorForm => {
-        BadRequest(views.html.cartadd(errorForm, prod_list_seq))
+        BadRequest(views.html.cartadd(errorForm, prod_list_seq, usr))
       },
       product => {
         for (p <- product.product) {

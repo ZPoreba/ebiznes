@@ -1,11 +1,17 @@
 package controllers
 
 import javax.inject._
-import models.{ProductRepository, Return, ReturnRepository, UserRepository}
+import models.{ProductRepository, Return, ReturnRepository, User, UserRepository, Product}
+import play.api.data.Form
+import play.api.data.Forms.mapping
+import play.api.data.Forms._
 import play.api.mvc._
 import play.filters.csrf.CSRF
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.collection.mutable.ListBuffer
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 
 @Singleton
@@ -14,104 +20,116 @@ class ReturnController @Inject()(returnRepository: ReturnRepository,
                                  userRepository: UserRepository,
                                  cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
 
+  val createForm: Form[CreateReturnForm] = Form {
+    mapping(
+      "userId" -> longNumber,
+      "productId" -> longNumber,
+      "status" -> nonEmptyText,
+    )(CreateReturnForm.apply)(CreateReturnForm.unapply)
+  }
+
+  val updateForm: Form[UpdateReturnForm] = Form {
+    mapping(
+      "id" -> longNumber,
+      "userId" -> longNumber,
+      "productId" -> longNumber,
+      "status" -> nonEmptyText,
+    )(UpdateReturnForm.apply)(UpdateReturnForm.unapply)
+  }
+
   def getToken = Action { implicit request =>
     val token = CSRF.getToken.get.value
     Ok(token)
   }
 
-  def create:Action[AnyContent] = Action.async { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
-    if (!params.contains("userId")) {
-      Future(Ok("No userId parameter in query"))
-    }
-    else if (!params.contains("productId")) {
-      Future(Ok("No productId parameter in query"))
-    }
-    else if (!params.contains("status")) {
-      Future(Ok("No status parameter in query"))
-    }
-    else {
-      val userId = params("userId").toInt
-      val prodId = params("productId").toInt
-      val status = params("status")
-
-      userRepository.exists(userId).map(userExists => {
-        productRepository.exists(prodId).map(productExists => {
-          if (userExists && productExists) {
-            returnRepository.create(userId, prodId, status)
-          }
-        })
-      })
-
-      Future(Ok("Return created!"))
-    }
+  def create:Action[AnyContent] = Action { implicit request =>
+    val users = Await.result(userRepository.list(), Duration.Inf)
+    val products = Await.result(productRepository.list(), Duration.Inf)
+    Ok(views.html.returnadd(createForm, users, products))
   }
 
-  def read: Action[AnyContent] = Action.async { implicit request =>
-    val returns = returnRepository.list()
-    returns.map( return_elem => Ok(return_elem.toString()) )
-  }
+  def createHandle = Action.async { implicit request =>
+    var usr = Await.result(userRepository.list(), Duration.Inf)
+    var prod = Await.result(productRepository.list(), Duration.Inf)
 
-  def readById: Action[AnyContent] = Action.async { implicit request =>
-
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
-    if (!params.contains("id")) {
-      Future(Ok("No id parameter in query"))
-    }
-    else {
-      val returns = returnRepository.getById(params("id").toLong)
-      returns.map(return_elem => Ok(return_elem.toString()))
-    }
+    createForm.bindFromRequest.fold(
+      errorForm => {
+        Future.successful(
+          BadRequest(views.html.returnadd(errorForm, usr, prod))
+        )
+      },
+      return_t => {
+        returnRepository.create(return_t.userId, return_t.productId, return_t.status).map { id =>
+          Redirect(routes.ReturnController.create()).flashing("success" -> "return.created")
+        }
+      }
+    )
 
   }
 
-  def update = Action.async { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
-
-    if (!params.contains("id")) {
-      Future(Ok("No id parameter in query"))
-    }
-    else {
-
-      try {
-        val id = params("id").toLong
-        val returns = returnRepository.getById(id)
-
-        returns.map(return_elem => return_elem match {
-          case Some(r) => {
-            val userId = if (params.contains("userId")) params("userId").toLong else r.userId
-            val productId = if (params.contains("productId")) params("productId").toLong else r.productId
-            val status = if (params.contains("status")) params("status") else r.status
-
-            val newReturn = Return(id, userId, productId, status)
-            returnRepository.update(id, newReturn)
-            Ok("Return updated!")
-          }
-          case None => Ok("No object with such id")
-        })
-      }
-      catch {
-        case e: NumberFormatException => Future(Ok("Id, userId and productId have to be integer"))
-      }
-
-    }
+  def read: Action[AnyContent] = Action { implicit request =>
+    val returns = Await.result(returnRepository.list(), Duration.Inf)
+    Ok(views.html.returnsread(returns))
   }
 
-  def delete = Action { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+  def readById(id: Long): Action[AnyContent] = Action.async { implicit request =>
+    val return_t = returnRepository.getByIdOption(id)
 
-    if (!params.contains("id")) {
-      Ok("No id parameter in query")
+    return_t.map(ret => ret match {
+      case Some(r) => Ok(views.html.returnread(r))
+      case None => Redirect(routes.ReturnController.read())
+    })
+  }
+
+  def update(id: Long):Action[AnyContent] = Action { implicit request =>
+
+    val return_t_result = Await.result(returnRepository.getById(id), Duration.Inf)
+    val users = Await.result(userRepository.list(), Duration.Inf)
+    val products = Await.result(productRepository.list(), Duration.Inf)
+
+    val returnForm = updateForm.fill( UpdateReturnForm(return_t_result.id, return_t_result.userId, return_t_result.productId, return_t_result.status))
+    Ok(views.html.returnupdate(returnForm, users, products))
+
+  }
+
+  def updateHandle = Action.async { implicit request =>
+
+    var usr:Seq[User] = Seq[User]()
+    val users = userRepository.list().onComplete{
+      case Success(u) => usr = u
+      case Failure(_) => print("fail")
     }
-    else {
-      try {
-        returnRepository.delete(params("id").toLong)
-        Ok("Return deleted!")
-      }
-      catch {
-        case e: NumberFormatException => Ok("Id has to be integer")
-      }
+
+    var prod:Seq[Product] = Seq[Product]()
+    val products = productRepository.list().onComplete{
+      case Success(p) => prod = p
+      case Failure(_) => print("fail")
     }
+
+    val users_result = Await.result(userRepository.list(), Duration.Inf)
+    val products_result = Await.result(productRepository.list(), Duration.Inf)
+
+    updateForm.bindFromRequest.fold(
+      errorForm => {
+        Future.successful(
+          BadRequest(views.html.returnupdate(errorForm, users_result, products_result))
+        )
+      },
+      return_t => {
+        returnRepository.update(return_t.id, Return(return_t.id, return_t.userId, return_t.productId, return_t.status)).map { _ =>
+          Redirect(routes.ReturnController.update(return_t.id)).flashing("success" -> "return updated")
+        }
+      }
+    )
+
+  }
+
+  def delete(id: Long): Action[AnyContent] = Action {
+    returnRepository.delete(id)
+    Redirect("/readreturns")
   }
 
 }
+
+case class CreateReturnForm(userId: Long, productId: Long, status: String)
+case class UpdateReturnForm(id: Long, userId: Long, productId: Long, status: String)

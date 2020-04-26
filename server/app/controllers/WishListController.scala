@@ -1,11 +1,16 @@
 package controllers
 
 import javax.inject._
-import models.{ProductRepository, UserRepository, WishListProductRepository}
+import models.{Product, ProductRepository, UserRepository, WishListProductRepository}
+import play.api.data.Form
+import play.api.data.Forms._
 import play.api.mvc._
 import play.filters.csrf.CSRF
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.collection.mutable.ListBuffer
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 
 @Singleton
@@ -14,53 +19,90 @@ class WishListController @Inject()(wishListProductRepository: WishListProductRep
                                    productRepository: ProductRepository,
                                    cc: MessagesControllerComponents) (implicit ec: ExecutionContext) extends MessagesAbstractController(cc){
 
+  val createForm: Form[CreateWishListForm] = Form {
+    mapping(
+      "userId" -> longNumber,
+      "product" -> seq(number),
+    )(CreateWishListForm.apply)(CreateWishListForm.unapply)
+  }
+
+  val updateForm: Form[UpdateWishListForm] = Form {
+    mapping(
+      "userId" -> longNumber,
+      "product" -> seq(number),
+    )(UpdateWishListForm.apply)(UpdateWishListForm.unapply)
+  }
+
   def getToken = Action { implicit request =>
     val token = CSRF.getToken.get.value
     Ok(token)
   }
 
-  def create = Action.async { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
-    if (!params.contains("userId")) {
-      Future(Ok("No userId parameter in query"))
-    }
-    else if (!params.contains("products")) {
-      Future(Ok("No products parameter in query"))
-    }
-    else {
-      val prodArray = params("products").replaceAll(" ", "").split( ',' )
-      val longProdArray = prodArray.map(_.toLong)
-      val userId = params("userId").toInt
+  def create:Action[AnyContent] = Action.async { implicit request =>
+    var usr = Await.result(userRepository.list(), Duration.Inf)
 
-      for (prodId <- longProdArray) {
-        userRepository.exists(userId).map(userExists => {
-          productRepository.exists(prodId).map(productExists => {
-            if (userExists && productExists) {
-              wishListProductRepository.create(userId, prodId)
-            }
-          })
-        })
+    val products = productRepository.list()
+    products.map (prod => {
+      var prod_list = new ListBuffer[(String, String)]()
+      for (p <- prod) {
+        prod_list.+=((p.id.toString,p.name))
       }
-      Future(Ok("WishList created!"))
-    }
+      val prod_list_seq = prod_list.toList
+
+      Ok(views.html.wishlistadd(createForm, prod_list_seq, usr))
+    })
   }
 
-  def read: Action[AnyContent] = Action.async { implicit request =>
-    val wishLists = wishListProductRepository.list()
-    wishLists.map( wishList => Ok(wishList.toString()) )
+  def createHandle = Action { implicit request =>
+    var usr = Await.result(userRepository.list(), Duration.Inf)
+
+    var produ:Seq[Product] = Seq[Product]()
+    val products = productRepository.list().onComplete{
+      case Success(prod) => produ = prod
+      case Failure(_) => print("fail")
+    }
+
+    var prod_list = new ListBuffer[(String, String)]()
+    for (p <- produ) {
+      prod_list.+=((p.id.toString, p.name))
+    }
+    val prod_list_seq = prod_list.toList
+
+    createForm.bindFromRequest.fold(
+      errorForm => {
+        BadRequest(views.html.wishlistadd(errorForm, prod_list_seq, usr))
+      },
+      product => {
+        for (p <- product.product) {
+          wishListProductRepository.create(product.userId, p)
+        }
+        Redirect(routes.WishListController.create()).flashing("success" -> "wishlist.created")
+      }
+    )
   }
 
-  def readById: Action[AnyContent] = Action.async { implicit request =>
+  def read: Action[AnyContent] = Action { implicit request =>
+    val users = Await.result(userRepository.list(), Duration.Inf)
+    val wishlist_product = new ListBuffer[Seq[(Long, Long)]]()
 
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
-    if (!params.contains("id")) {
-      Future(Ok("No id parameter in query"))
+    for (u <- users) {
+      val wishlist_product_result = Await.result(wishListProductRepository.getByUserId(u.id), Duration.Inf)
+      wishlist_product.+=(wishlist_product_result)
     }
-    else {
-      val wishLists = wishListProductRepository.getByUserId(params("id").toLong)
-      wishLists.map(wishList => Ok(wishList.toString()))
-    }
+    val prod_list_seq = wishlist_product.toList
 
+    Ok(views.html.wishlistsread(users, prod_list_seq))
+  }
+
+  def readById(id: Long): Action[AnyContent] = Action.async { implicit request =>
+    val user = userRepository.getByIdOption(id)
+    val wishlist_product = wishListProductRepository.getByUserId(id)
+    val wishlist_product_result = Await.result(wishlist_product, Duration.Inf)
+
+    user.map(user => user match {
+      case Some(u) => Ok(views.html.wishlistread(u, wishlist_product_result))
+      case None => Redirect(routes.WishListController.read())
+    })
   }
 
   def update = Action { implicit request =>
@@ -69,21 +111,12 @@ class WishListController @Inject()(wishListProductRepository: WishListProductRep
   }
 
   // By user id
-  def delete = Action { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
-
-    if (!params.contains("id")) {
-      Ok("No id parameter in query")
-    }
-    else {
-      try {
-        wishListProductRepository.deleteUser(params("id").toLong)
-        Ok("WishList for user with id " + params("id") + " deleted!")
-      }
-      catch {
-        case e: NumberFormatException => Ok("Id has to be integer")
-      }
-    }
+  def delete(id: Long): Action[AnyContent]  = Action {
+    wishListProductRepository.deleteUser(id)
+    Redirect("/readwishlists")
   }
 
 }
+
+case class CreateWishListForm(userId: Long, product: Seq[Int])
+case class UpdateWishListForm(userId: Long, product: Seq[Int])

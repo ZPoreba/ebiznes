@@ -33,7 +33,11 @@ class PaymentRepository @Inject() (val dbConfigProvider: DatabaseConfigProvider)
     payment.result
   }
 
-  def getById(id: Long): Future[Option[Payment]] = db.run {
+  def getById(id: Long): Future[Payment] = db.run {
+    payment.filter(_.id === id).result.head
+  }
+
+  def getByIdOption(id: Long): Future[Option[Payment]] = db.run {
     payment.filter(_.id === id).result.headOption
   }
 

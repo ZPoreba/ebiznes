@@ -1,134 +1,197 @@
 package controllers
 
 import javax.inject._
-import models.{OrderProductRepository, OrderRepository, Product, Order, ProductRepository}
+import models.{Order, OrderProduct, OrderProductRepository, OrderRepository, Payment, PaymentRepository, ProductRepository, User, UserRepository, Product}
+import play.api.data.Form
+import play.api.data.Forms.mapping
+import play.api.data.Forms._
 import play.api.mvc._
 import play.filters.csrf.CSRF
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.collection.mutable.ListBuffer
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 @Singleton
 class OrderController @Inject()(productRepository: ProductRepository,
                                 orderRepository: OrderRepository,
                                 orderProductRepository: OrderProductRepository,
+                                userRepository: UserRepository,
+                                paymentRepository: PaymentRepository,
                                 cc: MessagesControllerComponents)(implicit ec: ExecutionContext)
   extends MessagesAbstractController(cc) {
+
+  val createForm: Form[CreateOrderForm] = Form {
+    mapping(
+      "userId" -> longNumber,
+      "paymentId" -> longNumber,
+      "status" -> nonEmptyText,
+      "product" -> seq(longNumber)
+    )(CreateOrderForm.apply)(CreateOrderForm.unapply)
+  }
+
+  val updateForm: Form[UpdateOrderForm] = Form {
+    mapping(
+      "id" -> longNumber,
+      "userId" -> longNumber,
+      "paymentId" -> longNumber,
+      "status" -> nonEmptyText,
+      "product" -> seq(longNumber)
+    )(UpdateOrderForm.apply)(UpdateOrderForm.unapply)
+  }
 
   def getToken = Action { implicit request =>
     val token = CSRF.getToken.get.value
     Ok(token)
   }
 
-  def create:Action[AnyContent] = Action.async { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
-    if (!params.contains("userId")) {
-      Future(Ok("No userId parameter in query"))
+  def create:Action[AnyContent] = Action { implicit request =>
+    var prod = Await.result(productRepository.list(), Duration.Inf)
+    var prod_list = new ListBuffer[(String, String)]()
+    for (p <- prod) {
+      prod_list.+=((p.id.toString, p.name))
     }
-    else if (!params.contains("paymentId")) {
-      Future(Ok("No paymentId parameter in query"))
+    val prod_list_seq = prod_list.toList
+
+    val users = Await.result(userRepository.list(), Duration.Inf)
+    val payments = Await.result(paymentRepository.list(), Duration.Inf)
+    Ok(views.html.orderadd(createForm, users, payments, prod_list_seq))
+  }
+
+  def createHandle = Action.async { implicit request =>
+    var usr = Await.result(userRepository.list(), Duration.Inf)
+    var pay = Await.result(paymentRepository.list(), Duration.Inf)
+    var prod = Await.result(productRepository.list(), Duration.Inf)
+
+    var prod_list = new ListBuffer[(String, String)]()
+    for (p <- prod) {
+      prod_list.+=((p.id.toString, p.name))
     }
-    else if (!params.contains("status")) {
-      Future(Ok("No status parameter in query"))
+    val prod_list_seq = prod_list.toList
+
+    createForm.bindFromRequest.fold(
+      errorForm => {
+        Future.successful(
+          BadRequest(views.html.orderadd(errorForm, usr, pay, prod_list_seq))
+        )
+      },
+      order => {
+        orderRepository.create(order.userId, order.paymentId, order.status).map { id =>
+          for (p <- order.product) {
+            orderProductRepository.create(id, p)
+          }
+          Redirect(routes.OrderController.create()).flashing("success" -> "order.created")
+        }
+      }
+    )
+
+  }
+
+
+  def read: Action[AnyContent] = Action { implicit request =>
+    val orders = Await.result(orderRepository.list(), Duration.Inf)
+    val order_products = new ListBuffer[Seq[(Long, Long, Long, String, Long)]]()
+
+    for (o <- orders) {
+      val order_products_result = Await.result(orderProductRepository.getByOrderId(o.id), Duration.Inf)
+      order_products.+=(order_products_result)
     }
-    else if (!params.contains("products")) {
-      Future(Ok("No products parameter in query"))
+    val ord_list_seq = order_products.toList
+
+    Ok(views.html.ordersread(orders, ord_list_seq))
+  }
+
+  def readById(id: Long): Action[AnyContent] = Action.async { implicit request =>
+    val order = orderRepository.getByIdOption(id)
+    val order_product_result = Await.result(orderProductRepository.getByOrderId(id), Duration.Inf)
+
+    order.map(ord => ord match {
+      case Some(o) => Ok(views.html.orderread(o, order_product_result))
+      case None => Redirect(routes.OrderController.read())
+    })
+  }
+
+  def update(id: Long):Action[AnyContent] = Action.async { implicit request =>
+
+    val products = productRepository.list()
+    products.map (prod => {
+      var prod_list = new ListBuffer[(String, String)]()
+      for (p <- prod) {
+        prod_list.+=((p.id.toString,p.name))
+      }
+      val prod_list_seq = prod_list.toList
+
+      val order = orderRepository.getById(id)
+      val order_result = Await.result(order, Duration.Inf)
+      val users = Await.result(userRepository.list(), Duration.Inf)
+      val payments = Await.result(paymentRepository.list(), Duration.Inf)
+
+      val orderForm = updateForm.fill( UpdateOrderForm(order_result.id, order_result.userId, order_result.paymentId, order_result.status, Seq[Long]() ))
+      Ok(views.html.orderupdate(orderForm, users, payments, prod_list_seq))
+
+    })
+
+  }
+
+  def updateHandle = Action.async { implicit request =>
+
+    var usr:Seq[User] = Seq[User]()
+    val users = userRepository.list().onComplete{
+      case Success(u) => usr = u
+      case Failure(_) => print("fail")
     }
-    else {
-      val prodArray = params("products").replaceAll(" ", "").split( ',' )
-      val longProdArray = prodArray.map(_.toLong)
-      val prodId = orderRepository.create(params("userId").toLong, params("paymentId").toLong, params("status"))
-      prodId.map(id => {
-        for (prodId <- longProdArray) {
-             productRepository.exists(prodId).map(exists => {
-            if (exists) {
-              orderProductRepository.create(id, prodId)
-            }
-          })
+
+    var pay:Seq[Payment] = Seq[Payment]()
+    val payments = paymentRepository.list().onComplete{
+      case Success(p) => pay = p
+      case Failure(_) => print("fail")
+    }
+
+    var prod:Seq[Product] = Seq[Product]()
+    val products = productRepository.list().onComplete{
+      case Success(p) => prod = p
+      case Failure(_) => print("fail")
+    }
+
+    var prod_list = new ListBuffer[(String, String)]()
+    for (p <- prod) {
+      prod_list.+=((p.id.toString, p.name))
+    }
+    val prod_list_seq = prod_list.toList
+    val users_result = Await.result(userRepository.list(), Duration.Inf)
+    val payments_result = Await.result(paymentRepository.list(), Duration.Inf)
+
+    updateForm.bindFromRequest.fold(
+      errorForm => {
+        Future.successful(
+          BadRequest(views.html.orderupdate(errorForm, users_result, payments_result, prod_list_seq))
+        )
+      },
+      order => {
+
+        if(order.product.size > 0) {
+          orderProductRepository.deleteOrder(order.id)
+          for (p <- order.product) {
+            orderProductRepository.create(order.id, p)
+          }
         }
 
-      })
-      Future(Ok("Product created!"))
-    }
-  }
-
-  def read: Action[AnyContent] = Action.async { implicit request =>
-    val orders = orderProductRepository.list()
-    orders.map( order => Ok(order.toString()) )
-  }
-
-  def readById: Action[AnyContent] = Action.async { implicit request =>
-
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
-    if (!params.contains("id")) {
-      Future(Ok("No id parameter in query"))
-    }
-    else {
-      val orders = orderProductRepository.getByOrderId(params("id").toLong)
-      orders.map(order => Ok(order.toString()))
-    }
+        orderRepository.update(order.id, Order(order.id, order.userId, order.paymentId, order.status)).map { _ =>
+          Redirect(routes.OrderController.update(order.id)).flashing("success" -> "order updated")
+        }
+      }
+    )
 
   }
 
-  def update = Action.async { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
-
-    if (!params.contains("id")) {
-      Future(Ok("No id parameter in query"))
-    }
-    else {
-
-      try {
-        val id = params("id").toLong
-        val orders = orderRepository.getById(id)
-
-        orders.map(order => order match {
-          case Some(o) => {
-            val userId = if (params.contains("userId")) params("userId").toLong else o.userId
-            val paymentId = if (params.contains("paymentId")) params("paymentId").toLong else o.paymentId
-            val status = if (params.contains("status")) params("status") else o.status
-            val products = if (params.contains("products")) params("products").replaceAll(" ", "")
-              .split(',')
-              .map(_.toLong) else Array[Long]()
-
-            if (products.size != 0) orderProductRepository.deleteOrder(id) // if products are not empty, delete old one
-
-            val newOrder = Order(id, userId, paymentId, status)
-            orderRepository.update(id, newOrder)
-            for (prodId <- products) {
-              productRepository.exists(prodId).map(exists => {
-                if (exists) {
-                  orderProductRepository.create(id, prodId)
-                }
-              })
-            }
-            Ok("Order updated!")
-          }
-          case None => Ok("No object with such id")
-        })
-      }
-      catch {
-        case e: NumberFormatException => Future(Ok("Id has to be integer"))
-      }
-
-    }
-  }
-
-  def delete = Action { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
-
-    if (!params.contains("id")) {
-      Ok("No id parameter in query")
-    }
-    else {
-      try {
-        orderProductRepository.deleteOrder(params("id").toLong)
-        orderRepository.delete(params("id").toLong)
-        Ok("Order deleted!")
-      }
-      catch {
-        case e: NumberFormatException => Ok("Id has to be integer")
-      }
-    }
+  def delete(id: Long): Action[AnyContent]  = Action {
+    orderProductRepository.deleteOrder(id)
+    orderRepository.delete(id)
+    Redirect("/readorders")
   }
 
 }
+
+case class CreateOrderForm(userId: Long, paymentId: Long, status: String, product: Seq[Long])
+case class UpdateOrderForm(id: Long, userId: Long, paymentId: Long, status: String, product: Seq[Long])

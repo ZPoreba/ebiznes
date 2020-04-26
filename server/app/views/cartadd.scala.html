@@ -1,4 +1,4 @@
-@(cart: Form[CreateCartForm], product: Seq[(String, String)])(implicit request: MessagesRequestHeader, flash: Flash)
+@(cart: Form[CreateCartForm], product: Seq[(String, String)], user: Seq[User])(implicit request: MessagesRequestHeader, flash: Flash)
 
 @import helper._
 
@@ -6,7 +6,12 @@
 
 @form(routes.CartController.createHandle()) {
     @helper.CSRF.formField
-    @inputText(cart("userId"))
+    User:
+    <select name="userId" id="userId">
+    @for(u <- user){
+        <option value="@u.id">@u.firstName @u.secondName</option>
+    }
+    </select>
 
     @helper.select(cart("product"), product, 'multiple -> None )
 

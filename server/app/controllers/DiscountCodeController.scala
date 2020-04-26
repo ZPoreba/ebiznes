@@ -2,10 +2,14 @@ package controllers
 
 import javax.inject._
 import models.{DiscountCodeRepository, ProductRepository}
+import play.api.data.Form
+import play.api.data.Forms.mapping
+import play.api.data.Forms._
 import play.api.mvc._
 import play.filters.csrf.CSRF
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 
 @Singleton
@@ -13,50 +17,57 @@ class DiscountCodeController @Inject()(productRepository: ProductRepository,
                                        discountCodeRepository: DiscountCodeRepository,
                                        cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
 
+  val createForm: Form[CreateDiscountCodeForm] = Form {
+    mapping(
+      "productId" -> longNumber,
+      "code" -> longNumber,
+    )(CreateDiscountCodeForm.apply)(CreateDiscountCodeForm.unapply)
+  }
+
+  val updateForm: Form[UpdateDiscountCodeForm] = Form {
+    mapping(
+      "productId" -> longNumber,
+      "code" -> longNumber,
+    )(UpdateDiscountCodeForm.apply)(UpdateDiscountCodeForm.unapply)
+  }
+
   def getToken = Action { implicit request =>
     val token = CSRF.getToken.get.value
     Ok(token)
   }
 
-  def create:Action[AnyContent] = Action.async { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
-    if (!params.contains("productId")) {
-      Future(Ok("No productId parameter in query"))
-    }
-    else if (!params.contains("code")) {
-      Future(Ok("No code parameter in query"))
-    }
-    else {
-
-      val prodId = params("productId").toInt
-      val code = params("code").toInt
-
-      productRepository.exists(prodId).map(exists => {
-        if (exists) {
-          discountCodeRepository.create(prodId, code)
-        }
-      })
-
-      Future(Ok("DiscountCode created!"))
-    }
+  def create: Action[AnyContent] = Action { implicit request =>
+    var prod = Await.result(productRepository.list(), Duration.Inf)
+    Ok(views.html.discountcodeadd(createForm, prod))
   }
 
-  def read: Action[AnyContent] = Action.async { implicit request =>
-    val codes = discountCodeRepository.list()
-    codes.map( code => Ok(code.toString()) )
+  def createHandle = Action { implicit request =>
+    var prod = Await.result(productRepository.list(), Duration.Inf)
+
+    createForm.bindFromRequest.fold(
+      errorForm => {
+        BadRequest(views.html.discountcodeadd(errorForm, prod))
+      },
+      code => {
+        discountCodeRepository.create(code.productId, code.code)
+        Redirect(routes.DiscountCodeController.create()).flashing("success" -> "discountcode.created")
+
+      }
+    )
   }
 
-  def readById: Action[AnyContent] = Action.async { implicit request =>
+  def readById(id: Long): Action[AnyContent] = Action.async { implicit request =>
+    val discountcode = discountCodeRepository.getById(id)
 
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
-    if (!params.contains("id")) {
-      Future(Ok("No id parameter in query"))
-    }
-    else {
-      val codes = discountCodeRepository.getById(params("id").toLong)
-      codes.map(code => Ok(code.toString()))
-    }
+    discountcode.map(cat => cat match {
+      case Some(d) => Ok(views.html.discountcoderead(d))
+      case None => Redirect(routes.DiscountCodeController.read())
+    })
+  }
 
+  def read: Action[AnyContent] = Action { implicit request =>
+    val discountcodes = Await.result(discountCodeRepository.list(), Duration.Inf)
+    Ok(views.html.discountcodesread(discountcodes))
   }
 
   def update = Action { implicit request =>
@@ -64,21 +75,12 @@ class DiscountCodeController @Inject()(productRepository: ProductRepository,
       "of many discount codes to single product. ")
   }
 
-  def delete = Action { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
-
-    if (!params.contains("id")) {
-      Ok("No id parameter in query")
-    }
-    else {
-      try {
-        discountCodeRepository.delete(params("id").toLong)
-        Ok("DiscountCode deleted!")
-      }
-      catch {
-        case e: NumberFormatException => Ok("Id has to be integer")
-      }
-    }
+  def delete(id: Long): Action[AnyContent] = Action {
+    discountCodeRepository.delete(id)
+    Redirect("/readdiscountcodes")
   }
 
 }
+
+case class CreateDiscountCodeForm(productId: Long, code: Long)
+case class UpdateDiscountCodeForm(productId: Long, code: Long)

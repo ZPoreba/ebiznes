@@ -34,7 +34,11 @@ class ReturnRepository @Inject() (val dbConfigProvider: DatabaseConfigProvider)(
     return_table.result
   }
 
-  def getById(id: Long): Future[Option[Return]] = db.run {
+  def getById(id: Long): Future[Return] = db.run {
+    return_table.filter(_.id === id).result.head
+  }
+
+  def getByIdOption(id: Long): Future[Option[Return]] = db.run {
     return_table.filter(_.id === id).result.headOption
   }
 

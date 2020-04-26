@@ -1,0 +1,13 @@
+@(discountcodes: Seq[DiscountCode])
+
+  @for(discountcode <- discountcodes) {
+    <li>
+      <b>@discountcode.productId</b>
+      @discountcode.code
+
+      <a href="@controllers.routes.DiscountCodeController.delete(discountcode.productId)">Delete</a>
+    </li>
+
+  }
+
+

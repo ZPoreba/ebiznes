@@ -1,0 +1,11 @@
+@(wishlist: User, product: Seq[(Long, Long)])
+
+<b>@wishlist.id</b>
+
+<b>products: </b>
+
+  @for(prod <- product){
+    @prod._2
+  }
+
+<a href="@controllers.routes.WishListController.delete(wishlist.id)">Delete</a>
