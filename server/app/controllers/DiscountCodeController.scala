@@ -75,8 +75,8 @@ class DiscountCodeController @Inject()(productRepository: ProductRepository,
       "of many discount codes to single product. ")
   }
 
-  def delete(id: Long): Action[AnyContent] = Action {
-    discountCodeRepository.delete(id)
+  def delete(code: Long): Action[AnyContent] = Action {
+    discountCodeRepository.delete(code)
     Redirect("/readdiscountcodes")
   }
 

@@ -46,7 +46,7 @@ class DiscountCodeRepository @Inject() (val dbConfigProvider: DatabaseConfigProv
     discountCode.filter(_.productId === id).result.headOption
   }
 
-  def delete(id: Long): Future[Unit] = db.run(discountCode.filter(_.productId === id).delete).map(_ => ())
+  def delete(code: Long): Future[Unit] = db.run(discountCode.filter(_.code === code).delete).map(_ => ())
 
 }
 
