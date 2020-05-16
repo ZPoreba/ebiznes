@@ -1,5 +1,5 @@
 # ebiznes
 
-ZADANIE3 includes: <br />
+ZADANIE4 includes: <br />
 
-- forms with CRUD for: Cart, Product, Payment, User, Category, Order, Opinion, Return, WishList, DiscountCodes <br />
+- REST endpoints with CRUD for: Cart, Product, Payment, User, Category, Order, Opinion, Return, WishList, DiscountCodes in json format <br />
