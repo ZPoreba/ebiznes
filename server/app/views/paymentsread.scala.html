@@ -1,8 +1,8 @@
 @(payments: Seq[Payment])
-
+<ul>
   @for(payment <- payments) {
     <li>
-      <b>@payment.id</b>
+      <strong>@payment.id</strong>
       @payment.date
       @payment.status
 
@@ -11,5 +11,5 @@
     </li>
 
   }
-
+</ul>
 

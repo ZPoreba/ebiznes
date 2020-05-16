@@ -1,8 +1,8 @@
 @(wishlist: User, product: Seq[(Long, Long)])
 
-<b>@wishlist.id</b>
+<strong>@wishlist.id</strong>
 
-<b>products: </b>
+<strong>products: </strong>
 
   @for(prod <- product){
     @prod._2

@@ -1,9 +1,9 @@
 @(product: Product, category: Seq[ProductCategory])
 
-<b>@product.name</b>
+<strong>@product.name</strong>
   @product.description
   @product.price
-<b>categories: </b>
+<strong>categories: </strong>
 
   @for(cat <- category){
     @cat.categoryId

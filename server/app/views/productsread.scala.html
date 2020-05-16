@@ -1,13 +1,13 @@
 @(products: Seq[Product], category: List[Seq[ProductCategory]])
 @import java.math.BigInteger; var i=0
 
-
+<ul>
   @for(product <- products) {
     <li>
-      <b>@product.name</b>
+      <strong>@product.name</strong>
       @product.description
       @product.price
-      <b>categories: </b>
+      <strong>categories: </strong>
       @for(c <- category(i)) {
         @c.categoryId
       }
@@ -17,5 +17,5 @@
     </li>
     @(i+=1)
   }
-
+</ul>
 
