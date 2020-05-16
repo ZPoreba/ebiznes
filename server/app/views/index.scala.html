@@ -4,17 +4,46 @@
  *@
 @(message: String)
 
-@*
- * Call the `main` template with two arguments. The first
- * argument is a `String` with the title of the page, the second
- * argument is an `Html` object containing the body of the page.
- *@
-@main("Welcome to Play") {
+<ul>
+    <li>
+        <a href="@controllers.routes.ProductController.read()">Products</a>
+        <a href="@controllers.routes.ProductController.create()">Add</a>
+    </li>
+    <li>
+        <a href="@controllers.routes.CategoryController.read()">Categories</a>
+        <a href="@controllers.routes.CategoryController.create()">Add</a>
+    </li>
+    <li>
+        <a href="@controllers.routes.UserController.read()">Users</a>
+        <a href="@controllers.routes.UserController.create()">Add</a>
+    </li>
+    <li>
+        <a href="@controllers.routes.CartController.read()">Carts</a>
+        <a href="@controllers.routes.CartController.create()">Add</a>
+    </li>
+    <li>
+        <a href="@controllers.routes.WishListController.read()">Wish List</a>
+        <a href="@controllers.routes.WishListController.create()">Add</a>
+    </li>
+    <li>
+        <a href="@controllers.routes.OpinionController.read()">Opinions</a>
+        <a href="@controllers.routes.OpinionController.create()">Add</a>
+    </li>
+    <li>
+        <a href="@controllers.routes.PaymentController.read()">Payments</a>
+        <a href="@controllers.routes.PaymentController.create()">Add</a>
+    </li>
+    <li>
+        <a href="@controllers.routes.OrderController.read()">Order</a>
+        <a href="@controllers.routes.OrderController.create()">Add</a>
+    </li>
+    <li>
+        <a href="@controllers.routes.ReturnController.read()">Return</a>
+        <a href="@controllers.routes.ReturnController.create()">Add</a>
+    </li>
+    <li>
+        <a href="@controllers.routes.DiscountCodeController.read()">Discount Code</a>
+        <a href="@controllers.routes.DiscountCodeController.create()">Add</a>
+    </li>
+</ul>
 
-    @*
-     * Get an `Html` object by calling the built-in Play welcome
-     * template and passing a `String` message.
-     *@
-    @welcome(message, style = "scala")
-
-}
