@@ -33,11 +33,6 @@ class WishListController @Inject()(wishListProductRepository: WishListProductRep
     )(UpdateWishListForm.apply)(UpdateWishListForm.unapply)
   }
 
-  def getToken = Action { implicit request =>
-    val token = CSRF.getToken.get.value
-    Ok(token)
-  }
-
   def create:Action[AnyContent] = Action.async { implicit request =>
     var usr = Await.result(userRepository.list(), Duration.Inf)
 

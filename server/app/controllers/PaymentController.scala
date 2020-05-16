@@ -32,11 +32,6 @@ class PaymentController @Inject()(paymentRepository: PaymentRepository, cc: Mess
     )(UpdatePaymentForm.apply)(UpdatePaymentForm.unapply)
   }
 
-  def getToken = Action { implicit request =>
-    val token = CSRF.getToken.get.value
-    Ok(token)
-  }
-
   def stringToDate(date:String, format:String = "yyyy-MM-dd"):java.sql.Date = {
     import java.text._
     val sdf = new SimpleDateFormat(format)

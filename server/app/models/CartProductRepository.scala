@@ -52,7 +52,7 @@ class CartProductRepository @Inject() (val dbConfigProvider: DatabaseConfigProvi
     db.run(cartProduct += pc)
   }
 
-  def list(): Future[Any] = db.run {
+  def list(): Future[Seq[(Long, Long)]] = db.run {
     joinCartProduct.map{ case (u, p) => (u.id, p.productId) }.result
   }
 

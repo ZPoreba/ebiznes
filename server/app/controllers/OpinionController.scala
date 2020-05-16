@@ -34,11 +34,6 @@ class OpinionController @Inject()(opinionRepository: OpinionRepository,
     )(UpdateOpinionForm.apply)(UpdateOpinionForm.unapply)
   }
 
-  def getToken = Action { implicit request =>
-    val token = CSRF.getToken.get.value
-    Ok(token)
-  }
-
   def create: Action[AnyContent] = Action { implicit request =>
     Ok(views.html.opinionadd(createForm))
   }

@@ -45,11 +45,6 @@ class ProductController @Inject()(productRepository: ProductRepository,
     )(UpdateProductForm.apply)(UpdateProductForm.unapply)
   }
 
-  def getToken = Action { implicit request =>
-    val token = CSRF.getToken.get.value
-    Ok(token)
-  }
-
   def create:Action[AnyContent] = Action.async { implicit request =>
     val categories = categoryRepository.list()
     categories.map (cat => {

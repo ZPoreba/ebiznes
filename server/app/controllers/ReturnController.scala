@@ -37,11 +37,6 @@ class ReturnController @Inject()(returnRepository: ReturnRepository,
     )(UpdateReturnForm.apply)(UpdateReturnForm.unapply)
   }
 
-  def getToken = Action { implicit request =>
-    val token = CSRF.getToken.get.value
-    Ok(token)
-  }
-
   def create:Action[AnyContent] = Action { implicit request =>
     val users = Await.result(userRepository.list(), Duration.Inf)
     val products = Await.result(productRepository.list(), Duration.Inf)

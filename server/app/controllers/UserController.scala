@@ -41,12 +41,6 @@ class UserController @Inject()(userRepository: UserRepository,
     )(UpdateUserForm.apply)(UpdateUserForm.unapply)
   }
 
-
-  def getToken = Action { implicit request =>
-    val token = CSRF.getToken.get.value
-    Ok(token)
-  }
-
   def create: Action[AnyContent] = Action { implicit request =>
     Ok(views.html.useradd(createForm))
   }

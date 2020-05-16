@@ -31,11 +31,6 @@ class DiscountCodeController @Inject()(productRepository: ProductRepository,
     )(UpdateDiscountCodeForm.apply)(UpdateDiscountCodeForm.unapply)
   }
 
-  def getToken = Action { implicit request =>
-    val token = CSRF.getToken.get.value
-    Ok(token)
-  }
-
   def create: Action[AnyContent] = Action { implicit request =>
     var prod = Await.result(productRepository.list(), Duration.Inf)
     Ok(views.html.discountcodeadd(createForm, prod))

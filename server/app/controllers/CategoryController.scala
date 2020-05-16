@@ -26,11 +26,6 @@ class CategoryController @Inject()(categoryRepository: CategoryRepository, produ
     )(UpdateCategoryForm.apply)(UpdateCategoryForm.unapply)
   }
 
-  def getToken = Action { implicit request =>
-    val token = CSRF.getToken.get.value
-    Ok(token)
-  }
-
   def create: Action[AnyContent] = Action { implicit request =>
     Ok(views.html.categoryadd(categoryForm))
   }

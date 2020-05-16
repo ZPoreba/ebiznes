@@ -41,11 +41,6 @@ class OrderController @Inject()(productRepository: ProductRepository,
     )(UpdateOrderForm.apply)(UpdateOrderForm.unapply)
   }
 
-  def getToken = Action { implicit request =>
-    val token = CSRF.getToken.get.value
-    Ok(token)
-  }
-
   def create:Action[AnyContent] = Action { implicit request =>
     var prod = Await.result(productRepository.list(), Duration.Inf)
     var prod_list = new ListBuffer[(String, String)]()
