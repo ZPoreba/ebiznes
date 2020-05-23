@@ -67,6 +67,19 @@ class ApiOpinionController @Inject()(opinionRepository: OpinionRepository,
 
   }
 
+  def readByProductId: Action[AnyContent] = Action { implicit request =>
+
+    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    if (!params.contains("productId")) {
+      Ok("No productId parameter in query")
+    }
+    else {
+      val opinions = Await.result(opinionRepository.getByProductId(params("productId").toLong), Duration.Inf)
+      Ok(Json.toJson(opinions))
+    }
+
+  }
+
   def update = Action.async { implicit request =>
     val params = request.queryString.map { case (k,v) => k -> v.mkString }
 

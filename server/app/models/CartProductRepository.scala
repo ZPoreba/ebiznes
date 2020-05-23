@@ -47,6 +47,10 @@ class CartProductRepository @Inject() (val dbConfigProvider: DatabaseConfigProvi
     db.run(cartProduct.filter(_.userId === id).delete).map(_ => ())
   }
 
+  def deleteProductForUser(productId: Long, userId: Long): Future[Unit] = {
+    db.run(cartProduct.filter( p => p.userId === userId && p.productId === productId ).delete).map(_ => ())
+  }
+
   def create(userId: Long, productId: Long): Unit = {
     val pc = CartProduct(userId, productId)
     db.run(cartProduct += pc)

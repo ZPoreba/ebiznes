@@ -42,6 +42,10 @@ class ReturnRepository @Inject() (val dbConfigProvider: DatabaseConfigProvider)(
     return_table.filter(_.id === id).result.headOption
   }
 
+  def getByUserId(userId: Long): Future[Seq[(Long, Long, Long, String)]] = db.run {
+    return_table.map{ case (r) => (r.id, r.productId, r.userId, r.status) }.filter(_._3 === userId).result
+  }
+
   def update(id: Long, new_return: Return): Future[Unit] = {
     val returnToUpdate: Return = new_return.copy(id)
     db.run(return_table.filter(_.id === id).update(returnToUpdate)).map(_ => ())

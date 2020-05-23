@@ -37,8 +37,13 @@ class ApiPaymentController @Inject()(paymentRepository: PaymentRepository, cc: M
     }
     else {
       val date = stringToDate(params("date"))
-      paymentRepository.create(date, params("status"))
-      Future(Ok("Payment created!"))
+      val payment = Await.result(paymentRepository.create(date, params("status")), Duration.Inf)
+
+      val res = JsObject(Seq(
+        ("paymentId", Json.toJson(payment.id))
+      ))
+
+      Future(Ok(res))
     }
   }
 

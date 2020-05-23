@@ -139,6 +139,7 @@ POST    /product                    controllers.ApiProductController.create
 GET     /product                    controllers.ApiProductController.readById
 PUT     /product                    controllers.ApiProductController.update
 DELETE  /product                    controllers.ApiProductController.delete
+GET     /productFromCategory        controllers.ApiProductController.readByCategoryId
 
 # Cart
 GET     /cart/token                 controllers.ApiCartController.getToken
@@ -147,6 +148,7 @@ POST    /cart                       controllers.ApiCartController.create
 GET     /cart                       controllers.ApiCartController.readById
 PUT     /cart                       controllers.ApiCartController.update
 DELETE  /cart                       controllers.ApiCartController.delete
+DELETE  /cart/deleteProductForUser  controllers.ApiCartController.deleteProductForUser
 
 # Category
 GET     /category/token             controllers.ApiCategoryController.getToken
@@ -163,6 +165,7 @@ POST    /opinion                    controllers.ApiOpinionController.create
 GET     /opinion                    controllers.ApiOpinionController.readById
 PUT     /opinion                    controllers.ApiOpinionController.update
 DELETE  /opinion                    controllers.ApiOpinionController.delete
+GET     /opinionsForProduct         controllers.ApiOpinionController.readByProductId
 
 # Order
 GET     /order/token                controllers.ApiOrderController.getToken
@@ -171,6 +174,7 @@ POST    /order                      controllers.ApiOrderController.create
 GET     /order                      controllers.ApiOrderController.readById
 PUT     /order                      controllers.ApiOrderController.update
 DELETE  /order                      controllers.ApiOrderController.delete
+GET     /ordersForUser              controllers.ApiOrderController.readByUserId
 
 # Payment
 GET     /payment/token              controllers.ApiPaymentController.getToken
@@ -195,14 +199,16 @@ POST    /return                     controllers.ApiReturnController.create
 GET     /return                     controllers.ApiReturnController.readById
 PUT     /return                     controllers.ApiReturnController.update
 DELETE  /return                     controllers.ApiReturnController.delete
+GET     /returnsForUser             controllers.ApiReturnController.readByUserId
 
 # WishList
-GET     /wishlist/token             controllers.ApiWishListController.getToken
-GET     /wishlists                  controllers.ApiWishListController.read
-POST    /wishlist                   controllers.ApiWishListController.create
-GET     /wishlist                   controllers.ApiWishListController.readById
-PUT     /wishlist                   controllers.ApiWishListController.update
-DELETE  /wishlist                   controllers.ApiWishListController.delete
+GET     /wishlist/token                 controllers.ApiWishListController.getToken
+GET     /wishlists                      controllers.ApiWishListController.read
+POST    /wishlist                       controllers.ApiWishListController.create
+GET     /wishlist                       controllers.ApiWishListController.readById
+PUT     /wishlist                       controllers.ApiWishListController.update
+DELETE  /wishlist                       controllers.ApiWishListController.delete
+DELETE  /wishlist/deleteProductForUser  controllers.ApiWishListController.deleteProductForUser
 
 # DiscountCode
 GET     /discountcode/token         controllers.ApiDiscountCodeController.getToken
@@ -211,6 +217,7 @@ POST    /discountcode               controllers.ApiDiscountCodeController.create
 GET     /discountcode               controllers.ApiDiscountCodeController.readById
 PUT     /discountcode               controllers.ApiDiscountCodeController.update
 DELETE  /discountcode               controllers.ApiDiscountCodeController.delete
+GET     /discountcode/check         controllers.ApiDiscountCodeController.checkCodeForProducts
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

@@ -48,6 +48,10 @@ class ProductCategoryRepository @Inject() (val dbConfigProvider: DatabaseConfigP
     productCategory.filter(_.productId === id).result
   }
 
+  def getByCategoryId(id: Long): Future[Seq[ProductCategory]] = db.run {
+    productCategory.filter(_.categoryId === id).result
+  }
+
   def create(productId: Long, categoryId: Long): Unit = {
     val pc = ProductCategory(productId, categoryId)
     db.run(productCategory += pc)

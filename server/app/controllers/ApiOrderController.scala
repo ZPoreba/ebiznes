@@ -49,7 +49,7 @@ class ApiOrderController @Inject()(productRepository: ProductRepository,
         }
 
       })
-      Future(Ok("Product created!"))
+      Future(Ok("Order created!"))
     }
   }
 
@@ -65,17 +65,52 @@ class ApiOrderController @Inject()(productRepository: ProductRepository,
       Ok("No id parameter in query")
     }
     else {
-      val orderProducts = Await.result(orderProductRepository.getByOrderId(params("id").toLong), Duration.Inf)
-      val orders = Await.result(orderRepository.getById(params("id").toLong), Duration.Inf)
-      val products = orderProducts.map( p => p._5)
-      val jsonOrders = Json.toJson(orders)
 
-      val res = JsObject(Seq(
-        ("order", jsonOrders),
-        ("products", Json.toJson(products))
-      ))
+      try {
+        val orderProducts = Await.result(orderProductRepository.getByOrderId(params("id").toLong), Duration.Inf)
+        val orders = Await.result(orderRepository.getById(params("id").toLong), Duration.Inf)
+        val products = orderProducts.map(p => p._5)
+        val jsonOrders = Json.toJson(orders)
 
-      Ok(res)
+        val res = JsObject(Seq(
+          ("order", jsonOrders),
+          ("products", Json.toJson(products))
+        ))
+
+        Ok(res)
+      }
+      catch {
+        case e: NoSuchElementException => Ok("No element with such id")
+      }
+
+    }
+
+  }
+
+  def readByUserId: Action[AnyContent] = Action { implicit request =>
+
+    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    if (!params.contains("userId")) {
+      Ok("No userId parameter in query")
+    }
+    else {
+
+      try {
+        val orderProducts = Await.result(orderProductRepository.getByUserId(params("userId").toLong), Duration.Inf)
+
+        val id = params("userId").toLong
+        val orders = orderProducts.map( c => c._1 )
+        val res = JsObject(Seq(
+                      ("userId", Json.toJson(id)),
+                      ("orders", Json.toJson(orders))
+                    ))
+
+        Ok(res)
+      }
+      catch {
+        case e: NoSuchElementException => Ok("No element with such id")
+      }
+
     }
 
   }

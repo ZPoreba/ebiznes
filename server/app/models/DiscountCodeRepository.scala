@@ -46,7 +46,14 @@ class DiscountCodeRepository @Inject() (val dbConfigProvider: DatabaseConfigProv
     discountCode.filter(_.productId === id).result.headOption
   }
 
+  def getManyById(id: Long): Future[Seq[DiscountCode]] = db.run {
+    discountCode.filter(_.productId === id).result
+  }
+
   def delete(code: Long): Future[Unit] = db.run(discountCode.filter(_.code === code).delete).map(_ => ())
+
+  def exists(productId: Long, code: Long): Future[Boolean] =
+    db.run(discountCode.filter(dc => ( dc.productId === productId && dc.code === code )).exists.result)
 
 }
 

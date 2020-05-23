@@ -1,0 +1,13 @@
+.categoriesView {
+    height: 100vh;
+    padding-top: 64px;
+    background-color: white;
+}
+
+.categoriesView .gridElement {
+    font-size: x-large;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center
+}

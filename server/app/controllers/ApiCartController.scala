@@ -24,10 +24,10 @@ class ApiCartController @Inject()(cartProductRepository: CartProductRepository,
   def create:Action[AnyContent] = Action.async { implicit request =>
     val params = request.queryString.map { case (k,v) => k -> v.mkString }
     if (!params.contains("userId")) {
-      Future(Ok("No userId parameter in query"))
+      Future(Ok("Error during adding product to bucket"))
     }
     else if (!params.contains("products")) {
-      Future(Ok("No products parameter in query"))
+      Future(Ok("Error during adding product to bucket"))
     }
     else {
       val prodArray = params("products").replaceAll(" ", "").split( ',' )
@@ -43,7 +43,7 @@ class ApiCartController @Inject()(cartProductRepository: CartProductRepository,
           })
         })
       }
-      Future(Ok("Cart created!"))
+      Future(Ok("Product added successfully to bucket"))
     }
   }
 
@@ -92,6 +92,26 @@ class ApiCartController @Inject()(cartProductRepository: CartProductRepository,
       }
       catch {
         case e: NumberFormatException => Ok("Id has to be integer")
+      }
+    }
+  }
+
+  def deleteProductForUser = Action { implicit request =>
+    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+
+    if (!params.contains("userId")) {
+      Ok("Error during deleting product!")
+    }
+    else if (!params.contains("productId")) {
+      Ok("Error during deleting product!")
+    }
+    else {
+      try {
+        cartProductRepository.deleteProductForUser(params("productId").toLong, params("userId").toLong)
+        Ok("Product with id " + params("productId") + " deleted!")
+      }
+      catch {
+        case e: NumberFormatException => Ok("Error during deleting product!")
       }
     }
   }

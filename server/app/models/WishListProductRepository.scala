@@ -47,6 +47,10 @@ class WishListProductRepository @Inject() (val dbConfigProvider: DatabaseConfigP
     db.run(wishListProduct.filter(_.userId === id).delete).map(_ => ())
   }
 
+  def deleteProductForUser(productId: Long, userId: Long): Future[Unit] = {
+    db.run(wishListProduct.filter( p => p.userId === userId && p.productId === productId ).delete).map(_ => ())
+  }
+
   def create(userId: Long, productId: Long): Unit = {
     val pc = WishListProduct(userId, productId)
     db.run(wishListProduct += pc)

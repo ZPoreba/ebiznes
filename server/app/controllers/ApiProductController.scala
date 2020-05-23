@@ -6,6 +6,7 @@ import play.api.libs.json._
 import play.api.mvc._
 import play.filters.csrf.CSRF
 
+import scala.collection.mutable.ListBuffer
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 
@@ -82,6 +83,28 @@ class ApiProductController @Inject()(productRepository: ProductRepository,
       ))
 
       Ok(res)
+    }
+
+  }
+
+  def readByCategoryId: Action[AnyContent] = Action { implicit request =>
+
+    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    if (!params.contains("categoryId")) {
+      Ok("No categoryId parameter in query")
+    }
+    else {
+      val categoryId = params("categoryId").toLong
+      val productCategories = Await.result(productCategoryRepository.getByCategoryId(categoryId), Duration.Inf)
+      val prodArray = new ListBuffer[(Product)]()
+
+      productCategories.map( p => {
+        val product = Await.result(productRepository.getById(p.productId), Duration.Inf)
+        prodArray += product
+      })
+
+      val jsonProducts = Json.toJson(prodArray)
+      Ok(jsonProducts)
     }
 
   }

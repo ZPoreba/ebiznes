@@ -38,6 +38,10 @@ class OpinionRepository @Inject() (val dbConfigProvider: DatabaseConfigProvider)
     opinion.filter(_.id === id).result.head
   }
 
+  def getByProductId(productId: Long): Future[Seq[Opinion]] = db.run {
+    opinion.filter(_.productId === productId).result
+  }
+
   def getByIdOption(id: Long): Future[Option[Opinion]] = db.run {
     opinion.filter(_.id === id).result.headOption
   }

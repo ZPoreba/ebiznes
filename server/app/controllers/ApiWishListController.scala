@@ -25,10 +25,10 @@ class ApiWishListController @Inject()(wishListProductRepository: WishListProduct
   def create = Action.async { implicit request =>
     val params = request.queryString.map { case (k,v) => k -> v.mkString }
     if (!params.contains("userId")) {
-      Future(Ok("No userId parameter in query"))
+      Future(Ok("Error during adding product to wish list"))
     }
     else if (!params.contains("products")) {
-      Future(Ok("No products parameter in query"))
+      Future(Ok("Error during adding product to wish list"))
     }
     else {
       val prodArray = params("products").replaceAll(" ", "").split( ',' )
@@ -44,7 +44,7 @@ class ApiWishListController @Inject()(wishListProductRepository: WishListProduct
           })
         })
       }
-      Future(Ok("WishList created!"))
+      Future(Ok("Product added successfully to wish list"))
     }
   }
 
@@ -108,6 +108,26 @@ class ApiWishListController @Inject()(wishListProductRepository: WishListProduct
       }
       catch {
         case e: NumberFormatException => Ok("Id has to be integer")
+      }
+    }
+  }
+
+  def deleteProductForUser = Action { implicit request =>
+    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+
+    if (!params.contains("userId")) {
+      Ok("Error during deleting product!")
+    }
+    else if (!params.contains("productId")) {
+      Ok("Error during deleting product!")
+    }
+    else {
+      try {
+        wishListProductRepository.deleteProductForUser(params("productId").toLong, params("userId").toLong)
+        Ok("Product with id " + params("productId") + " deleted!")
+      }
+      catch {
+        case e: NumberFormatException => Ok("Error during deleting product!")
       }
     }
   }

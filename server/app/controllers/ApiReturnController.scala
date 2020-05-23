@@ -45,7 +45,7 @@ class ApiReturnController @Inject()(returnRepository: ReturnRepository,
         })
       })
 
-      Future(Ok("Return created!"))
+      Future(Ok("Return requested"))
     }
   }
 
@@ -63,6 +63,34 @@ class ApiReturnController @Inject()(returnRepository: ReturnRepository,
     else {
       val returns = Await.result(returnRepository.getById(params("id").toLong), Duration.Inf)
       Ok(Json.toJson(returns))
+    }
+
+  }
+
+  def readByUserId: Action[AnyContent] = Action { implicit request =>
+
+    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    if (!params.contains("userId")) {
+      Ok("No userId parameter in query")
+    }
+    else {
+
+      try {
+        val returns = Await.result(returnRepository.getByUserId(params("userId").toLong), Duration.Inf)
+
+        val id = params("userId").toLong
+        val returnsArray = returns.map( c => ( c._1, c._2, c._4 ) )
+        val res = JsObject(Seq(
+          ("userId", Json.toJson(id)),
+          ("returns", Json.toJson(returnsArray))
+        ))
+
+        Ok(res)
+      }
+      catch {
+        case e: NoSuchElementException => Ok("No element with such id")
+      }
+
     }
 
   }
@@ -108,7 +136,7 @@ class ApiReturnController @Inject()(returnRepository: ReturnRepository,
     else {
       try {
         returnRepository.delete(params("id").toLong)
-        Ok("Return deleted!")
+        Ok("Return canceled")
       }
       catch {
         case e: NumberFormatException => Ok("Id has to be integer")
