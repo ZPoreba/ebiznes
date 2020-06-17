@@ -1,10 +1,10 @@
 package models
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.{ Inject, Singleton }
 import play.api.db.slick.DatabaseConfigProvider
 import slick.jdbc.JdbcProfile
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 @Singleton
 class PaymentRepository @Inject() (val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext) {
@@ -25,8 +25,7 @@ class PaymentRepository @Inject() (val dbConfigProvider: DatabaseConfigProvider)
   def create(date: java.sql.Date, status: String): Future[Payment] = db.run {
     (payment.map(p => (p.date, p.status))
       returning payment.map(_.id)
-      into {case ((date, status), id) => Payment(id, date, status)}
-      ) += (date, status)
+      into { case ((date, status), id) => Payment(id, date, status) }) += (date, status)
   }
 
   def list(): Future[Seq[Payment]] = db.run {

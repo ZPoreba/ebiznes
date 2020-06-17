@@ -12,49 +12,44 @@ class UserRepository @Inject() (val dbConfigProvider: DatabaseConfigProvider)(im
 
   import dbConfig._
   import profile.api._
+  import utils.UUIDHelper
 
-  class UserTable(tag: Tag) extends Table[User](tag, "user") {
-    def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
-    def firstName = column[String]("firstName")
-    def secondName = column[String]("secondName")
-    def email = column[String]("email")
-    def password = column[String]("password")
+  class UserTable(tag: Tag) extends Table[ApiUser](tag, "user") {
+    def id = column[String]("id", O.PrimaryKey)
+    def firstName = column[Option[String]]("firstName")
+    def lastName = column[Option[String]]("lastName")
+    def fullName = column[Option[String]]("fullName")
+    def email = column[Option[String]]("email")
+    def avatarURL = column[Option[String]]("avatarURL")
     def address = column[String]("address")
 
-    def * = (id, firstName, secondName, email, password, address) <> ((User.apply _).tupled, User.unapply)
+    def * = (id, firstName, lastName, fullName, email, avatarURL, address) <> ((ApiUser.apply _).tupled, ApiUser.unapply)
   }
 
   private val user = TableQuery[UserTable]
 
-  def create(firstName: String, secondName: String, email: String, password: String, address: String): Future[User] = db.run {
-    (user.map(u => (u.firstName, u.secondName, u.email, u.password, u.address))
-      returning user.map(_.id)
-      into { case ((firstName, secondName, email, password, address), id) => User(id, firstName, secondName, email, password, address)}
-      ) += (firstName, secondName, email, password, address)
-  }
-
-  def list(): Future[Seq[User]] = db.run {
+  def list(): Future[Seq[ApiUser]] = db.run {
     user.result
   }
 
-  def getById(id: Long): Future[User] = db.run {
+  def getById(id: String): Future[ApiUser] = db.run {
     user.filter(_.id === id).result.head
   }
 
-  def getByIdOption(id: Long): Future[Option[User]] = db.run {
+  def getByIdOption(id: String): Future[Option[ApiUser]] = db.run {
     user.filter(_.id === id).result.headOption
   }
 
-  def update(id: Long, new_user: User): Future[Unit] = {
-    val userToUpdate: User = new_user.copy(id)
+  def update(id: String, new_user: ApiUser): Future[Unit] = {
+    val userToUpdate: ApiUser = new_user.copy(id)
     db.run(user.filter(_.id === id).update(userToUpdate)).map(_ => ())
   }
 
-  def delete(id: Long): Future[Unit] = {
+  def delete(id: String): Future[Unit] = {
     db.run(user.filter(_.id === id).delete).map(_ => ())
   }
 
-  def exists(id: Long): Future[Boolean] =
+  def exists(id: String): Future[Boolean] =
     db.run(user.filter(i => i.id === id).exists.result)
 
 }

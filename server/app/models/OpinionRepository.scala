@@ -1,10 +1,10 @@
 package models
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.{ Inject, Singleton }
 import play.api.db.slick.DatabaseConfigProvider
 import slick.jdbc.JdbcProfile
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 @Singleton
 class OpinionRepository @Inject() (val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext) {
@@ -15,7 +15,7 @@ class OpinionRepository @Inject() (val dbConfigProvider: DatabaseConfigProvider)
 
   class OpinionTable(tag: Tag) extends Table[Opinion](tag, "opinion") {
     def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
-    def userId = column[Long]("userId")
+    def userId = column[String]("userId")
     def productId = column[Long]("productId")
     def content = column[String]("content")
     def * = (id, userId, productId, content) <> ((Opinion.apply _).tupled, Opinion.unapply)
@@ -23,11 +23,10 @@ class OpinionRepository @Inject() (val dbConfigProvider: DatabaseConfigProvider)
 
   val opinion = TableQuery[OpinionTable]
 
-  def create(userId: Long, productId: Long, content: String): Future[Opinion] = db.run {
+  def create(userId: String, productId: Long, content: String): Future[Opinion] = db.run {
     (opinion.map(o => (o.userId, o.productId, o.content))
       returning opinion.map(_.id)
-      into { case ((userId, productId, content), id) => Opinion(id, userId, productId, content)}
-      ) += (userId, productId, content)
+      into { case ((userId, productId, content), id) => Opinion(id, userId, productId, content) }) += (userId, productId, content)
   }
 
   def list(): Future[Seq[Opinion]] = db.run {
@@ -53,6 +52,6 @@ class OpinionRepository @Inject() (val dbConfigProvider: DatabaseConfigProvider)
 
   def delete(id: Long): Future[Unit] = db.run(opinion.filter(_.id === id).delete).map(_ => ())
   def deleteProduct(id: Long): Future[Unit] = db.run(opinion.filter(_.productId === id).delete).map(_ => ())
-  def deleteUser(id: Long): Future[Unit] = db.run(opinion.filter(_.userId === id).delete).map(_ => ())
+  def deleteUser(id: String): Future[Unit] = db.run(opinion.filter(_.userId === id).delete).map(_ => ())
 
 }

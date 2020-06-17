@@ -1,15 +1,16 @@
 package models
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.{ Inject, Singleton }
 import play.api.db.slick.DatabaseConfigProvider
 import slick.jdbc.JdbcProfile
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 @Singleton
-class OrderProductRepository @Inject() (val dbConfigProvider: DatabaseConfigProvider,
-                                        val orderRepository: OrderRepository,
-                                        val productRepository: ProductRepository)(implicit ec: ExecutionContext) {
+class OrderProductRepository @Inject() (
+  val dbConfigProvider: DatabaseConfigProvider,
+  val orderRepository: OrderRepository,
+  val productRepository: ProductRepository)(implicit ec: ExecutionContext) {
 
   val dbConfig = dbConfigProvider.get[JdbcProfile]
 
@@ -27,10 +28,10 @@ class OrderProductRepository @Inject() (val dbConfigProvider: DatabaseConfigProv
     import productRepository.ProductTable
 
     def orderFK = foreignKey("FK_ORDER", orderId, TableQuery[OrderTable])(order =>
-      order.id, onDelete=ForeignKeyAction.Cascade)
+      order.id, onDelete = ForeignKeyAction.Cascade)
 
     def productFK = foreignKey("FK_PRODUCT", productId, TableQuery[ProductTable])(product =>
-      product.id, onDelete=ForeignKeyAction.Cascade)
+      product.id, onDelete = ForeignKeyAction.Cascade)
 
   }
 
@@ -53,15 +54,15 @@ class OrderProductRepository @Inject() (val dbConfigProvider: DatabaseConfigProv
   }
 
   def list(): Future[Any] = db.run {
-    joinOrderProduct.map{ case (o, p) => (o.id, o.userId, o.paymentId, o.status, p.productId) }.result
+    joinOrderProduct.map { case (o, p) => (o.id, o.userId, o.paymentId, o.status, p.productId) }.result
   }
 
-  def getByOrderId(id: Long): Future[Seq[(Long, Long, Long, String, Long)]] = db.run {
-    joinOrderProduct.map{ case (o, p) => (o.id, o.userId, o.paymentId, o.status, p.productId) }.filter(_._1 === id).result
+  def getByOrderId(id: Long): Future[Seq[(Long, String, Long, String, Long)]] = db.run {
+    joinOrderProduct.map { case (o, p) => (o.id, o.userId, o.paymentId, o.status, p.productId) }.filter(_._1 === id).result
   }
 
-  def getByUserId(userId: Long): Future[Seq[(Long, Long)]] = db.run {
-    joinOrderProduct.map{ case (o, p) => (o.id, o.userId) }.filter(_._2 === userId).result
+  def getByUserId(userId: String): Future[Seq[(Long, String)]] = db.run {
+    joinOrderProduct.map { case (o, p) => (o.id, o.userId) }.filter(_._2 === userId).result
   }
 
 }

@@ -1,16 +1,16 @@
 package controllers
 
 import javax.inject._
-import models.{Category, CategoryRepository, ProductCategoryRepository}
+import models.{ Category, CategoryRepository, ProductCategoryRepository }
 import play.api.libs.json._
 import play.api.mvc._
 import play.filters.csrf.CSRF
 
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ Await, ExecutionContext, Future }
 
 @Singleton
-class ApiCategoryController @Inject()(categoryRepository: CategoryRepository, productCategoryRepository: ProductCategoryRepository, cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
+class ApiCategoryController @Inject() (categoryRepository: CategoryRepository, productCategoryRepository: ProductCategoryRepository, cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
 
   def getToken = Action { implicit request =>
     val token = CSRF.getToken.get.value
@@ -18,11 +18,10 @@ class ApiCategoryController @Inject()(categoryRepository: CategoryRepository, pr
   }
 
   def create = Action.async { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("name")) {
       Future(Ok("No name parameter in query"))
-    }
-    else {
+    } else {
       categoryRepository.create(params("name"))
       Future(Ok("Category created!"))
     }
@@ -35,11 +34,10 @@ class ApiCategoryController @Inject()(categoryRepository: CategoryRepository, pr
 
   def readById: Action[AnyContent] = Action.async { implicit request =>
 
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("id")) {
       Future(Ok("No id parameter in query"))
-    }
-    else {
+    } else {
       val categories = categoryRepository.getByIdOption(params("id").toLong)
       categories.map(category => category match {
         case Some(c) => Ok(Json.toJson(c))
@@ -50,12 +48,11 @@ class ApiCategoryController @Inject()(categoryRepository: CategoryRepository, pr
   }
 
   def update = Action.async { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("id")) {
       Future(Ok("No id parameter in query"))
-    }
-    else {
+    } else {
 
       try {
         val id = params("id").toLong
@@ -71,8 +68,7 @@ class ApiCategoryController @Inject()(categoryRepository: CategoryRepository, pr
           }
           case None => Ok("No object with such id")
         })
-      }
-      catch {
+      } catch {
         case e: NumberFormatException => Future(Ok("Id has to be integer"))
       }
 
@@ -80,18 +76,16 @@ class ApiCategoryController @Inject()(categoryRepository: CategoryRepository, pr
   }
 
   def delete = Action { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("id")) {
       Ok("No id parameter in query")
-    }
-    else {
+    } else {
       try {
         categoryRepository.delete(params("id").toLong)
         productCategoryRepository.deleteCategory(params("id").toLong)
         Ok("Category deleted!")
-      }
-      catch {
+      } catch {
         case e: NumberFormatException => Ok("Id has to be integer")
       }
     }

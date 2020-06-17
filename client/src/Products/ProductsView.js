@@ -4,6 +4,8 @@ import { productsService } from './ProductsService';
 import { Spin } from "antd";
 import { List, Button, Modal, Avatar } from 'antd';
 import { MessageOutlined } from '@ant-design/icons';
+import {commonService} from "../Common/CommonService";
+import {withRouter} from "react-router-dom";
 
 
 class ProductsView extends Component {
@@ -25,7 +27,9 @@ class ProductsView extends Component {
     }
 
     componentDidMount() {
-        this.loadProducts();
+        commonService.checkIfAuthenticated(this.props).then(result => {
+            if(result) this.loadProducts();
+        });
     }
 
     loadProducts = () => {
@@ -42,11 +46,19 @@ class ProductsView extends Component {
     }
 
     showOpinion = (productId) => {
-        this.setState({loading: true}, () =>
-            productsService.getOpinionsForProduct(productId).then((resp) => {
-                this.setState({currentOpinions: resp, loading: false, visible: true});
-            })
-        );
+        this.setState({loading: true}, async () => {
+            let resp = await productsService.getOpinionsForProduct(productId);
+            resp = await Promise.all(
+                resp.map(async opinion => {
+                    let user = (await productsService.getUserById(opinion.userId));
+                    opinion.userId = user.fullName;
+                    opinion.avatarURL = user.avatarURL;
+                    return opinion;
+                })
+            );
+
+            this.setState({currentOpinions: resp, loading: false, visible: true});
+        });
     }
 
     createModal = () => {
@@ -69,9 +81,9 @@ class ProductsView extends Component {
                             <List.Item>
                                 <List.Item.Meta
                                     avatar={
-                                        <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
+                                        <Avatar src={item.avatarURL} />
                                     }
-                                    title={<strong>User {item.userId}</strong>}
+                                    title={<strong>{item.userId}</strong>}
                                     description={item.content}
                                 />
                             </List.Item>
@@ -119,7 +131,7 @@ class ProductsView extends Component {
                                 ]}
                                 extra={
                                     <div>
-                                        <Button onClick={ e => this.addToBucket(item.id) }>Add to bucket</Button>
+                                        <Button onClick={ e => this.addToBucket(item.id) }>Add to cart</Button>
                                         <br />
                                         <br />
                                         <Button onClick={ e => this.addToWishList(item.id) }>Add to wish list</Button>
@@ -145,4 +157,4 @@ class ProductsView extends Component {
     }
 }
 
-export default ProductsView;
+export default withRouter(ProductsView);

@@ -1,4 +1,4 @@
-@(wishlists: Seq[User], product: List[Seq[(Long, Long)]])
+@(wishlists: Seq[ApiUser], product: List[Seq[(String, Long)]])
 @import java.math.BigInteger; var i=0
 
 
@@ -10,7 +10,7 @@
       @p._2
     }
 
-    <a href="@controllers.routes.WishListController.delete(wishlist.id)">Delete</a>
+    <a href="@controllers.routes.WishListController.delete(wishlist.id.toString)">Delete</a>
   </li>
   @(i+=1)
 }

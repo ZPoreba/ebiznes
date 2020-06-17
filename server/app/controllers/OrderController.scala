@@ -1,7 +1,7 @@
 package controllers
 
 import javax.inject._
-import models.{Order, OrderProduct, OrderProductRepository, OrderRepository, Payment, PaymentRepository, ProductRepository, User, UserRepository, Product}
+import models.{ ApiUser, Order, OrderProduct, OrderProductRepository, OrderRepository, Payment, PaymentRepository, Product, ProductRepository, User, UserRepository }
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.data.Forms._
@@ -10,38 +10,37 @@ import play.filters.csrf.CSRF
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import scala.concurrent.{ Await, ExecutionContext, Future }
+import scala.util.{ Failure, Success }
 
 @Singleton
-class OrderController @Inject()(productRepository: ProductRepository,
-                                orderRepository: OrderRepository,
-                                orderProductRepository: OrderProductRepository,
-                                userRepository: UserRepository,
-                                paymentRepository: PaymentRepository,
-                                cc: MessagesControllerComponents)(implicit ec: ExecutionContext)
+class OrderController @Inject() (
+  productRepository: ProductRepository,
+  orderRepository: OrderRepository,
+  orderProductRepository: OrderProductRepository,
+  userRepository: UserRepository,
+  paymentRepository: PaymentRepository,
+  cc: MessagesControllerComponents)(implicit ec: ExecutionContext)
   extends MessagesAbstractController(cc) {
 
   val createForm: Form[CreateOrderForm] = Form {
     mapping(
-      "userId" -> longNumber,
+      "userId" -> nonEmptyText,
       "paymentId" -> longNumber,
       "status" -> nonEmptyText,
-      "product" -> seq(longNumber)
-    )(CreateOrderForm.apply)(CreateOrderForm.unapply)
+      "product" -> seq(longNumber))(CreateOrderForm.apply)(CreateOrderForm.unapply)
   }
 
   val updateForm: Form[UpdateOrderForm] = Form {
     mapping(
       "id" -> longNumber,
-      "userId" -> longNumber,
+      "userId" -> nonEmptyText,
       "paymentId" -> longNumber,
       "status" -> nonEmptyText,
-      "product" -> seq(longNumber)
-    )(UpdateOrderForm.apply)(UpdateOrderForm.unapply)
+      "product" -> seq(longNumber))(UpdateOrderForm.apply)(UpdateOrderForm.unapply)
   }
 
-  def create:Action[AnyContent] = Action { implicit request =>
+  def create: Action[AnyContent] = Action { implicit request =>
     var prod = Await.result(productRepository.list(), Duration.Inf)
     var prod_list = new ListBuffer[(String, String)]()
     for (p <- prod) {
@@ -68,8 +67,7 @@ class OrderController @Inject()(productRepository: ProductRepository,
     createForm.bindFromRequest.fold(
       errorForm => {
         Future.successful(
-          BadRequest(views.html.orderadd(errorForm, usr, pay, prod_list_seq))
-        )
+          BadRequest(views.html.orderadd(errorForm, usr, pay, prod_list_seq)))
       },
       order => {
         orderRepository.create(order.userId, order.paymentId, order.status).map { id =>
@@ -78,15 +76,13 @@ class OrderController @Inject()(productRepository: ProductRepository,
           }
           Redirect(routes.OrderController.create()).flashing("success" -> "order.created")
         }
-      }
-    )
+      })
 
   }
 
-
   def read: Action[AnyContent] = Action { implicit request =>
     val orders = Await.result(orderRepository.list(), Duration.Inf)
-    val order_products = new ListBuffer[Seq[(Long, Long, Long, String, Long)]]()
+    val order_products = new ListBuffer[Seq[(Long, String, Long, String, Long)]]()
 
     for (o <- orders) {
       val order_products_result = Await.result(orderProductRepository.getByOrderId(o.id), Duration.Inf)
@@ -107,13 +103,13 @@ class OrderController @Inject()(productRepository: ProductRepository,
     })
   }
 
-  def update(id: Long):Action[AnyContent] = Action.async { implicit request =>
+  def update(id: Long): Action[AnyContent] = Action.async { implicit request =>
 
     val products = productRepository.list()
-    products.map (prod => {
+    products.map(prod => {
       var prod_list = new ListBuffer[(String, String)]()
       for (p <- prod) {
-        prod_list.+=((p.id.toString,p.name))
+        prod_list.+=((p.id.toString, p.name))
       }
       val prod_list_seq = prod_list.toList
 
@@ -122,7 +118,7 @@ class OrderController @Inject()(productRepository: ProductRepository,
       val users = Await.result(userRepository.list(), Duration.Inf)
       val payments = Await.result(paymentRepository.list(), Duration.Inf)
 
-      val orderForm = updateForm.fill( UpdateOrderForm(order_result.id, order_result.userId, order_result.paymentId, order_result.status, Seq[Long]() ))
+      val orderForm = updateForm.fill(UpdateOrderForm(order_result.id, order_result.userId, order_result.paymentId, order_result.status, Seq[Long]()))
       Ok(views.html.orderupdate(orderForm, users, payments, prod_list_seq))
 
     })
@@ -131,20 +127,20 @@ class OrderController @Inject()(productRepository: ProductRepository,
 
   def updateHandle = Action.async { implicit request =>
 
-    var usr:Seq[User] = Seq[User]()
-    val users = userRepository.list().onComplete{
+    var usr: Seq[ApiUser] = Seq[ApiUser]()
+    val users = userRepository.list().onComplete {
       case Success(u) => usr = u
       case Failure(_) => print("fail")
     }
 
-    var pay:Seq[Payment] = Seq[Payment]()
-    val payments = paymentRepository.list().onComplete{
+    var pay: Seq[Payment] = Seq[Payment]()
+    val payments = paymentRepository.list().onComplete {
       case Success(p) => pay = p
       case Failure(_) => print("fail")
     }
 
-    var prod:Seq[Product] = Seq[Product]()
-    val products = productRepository.list().onComplete{
+    var prod: Seq[Product] = Seq[Product]()
+    val products = productRepository.list().onComplete {
       case Success(p) => prod = p
       case Failure(_) => print("fail")
     }
@@ -160,12 +156,11 @@ class OrderController @Inject()(productRepository: ProductRepository,
     updateForm.bindFromRequest.fold(
       errorForm => {
         Future.successful(
-          BadRequest(views.html.orderupdate(errorForm, users_result, payments_result, prod_list_seq))
-        )
+          BadRequest(views.html.orderupdate(errorForm, users_result, payments_result, prod_list_seq)))
       },
       order => {
 
-        if(order.product.size > 0) {
+        if (order.product.size > 0) {
           orderProductRepository.deleteOrder(order.id)
           for (p <- order.product) {
             orderProductRepository.create(order.id, p)
@@ -175,12 +170,11 @@ class OrderController @Inject()(productRepository: ProductRepository,
         orderRepository.update(order.id, Order(order.id, order.userId, order.paymentId, order.status)).map { _ =>
           Redirect(routes.OrderController.update(order.id)).flashing("success" -> "order updated")
         }
-      }
-    )
+      })
 
   }
 
-  def delete(id: Long): Action[AnyContent]  = Action {
+  def delete(id: Long): Action[AnyContent] = Action {
     orderProductRepository.deleteOrder(id)
     orderRepository.delete(id)
     Redirect("/readorders")
@@ -188,5 +182,5 @@ class OrderController @Inject()(productRepository: ProductRepository,
 
 }
 
-case class CreateOrderForm(userId: Long, paymentId: Long, status: String, product: Seq[Long])
-case class UpdateOrderForm(id: Long, userId: Long, paymentId: Long, status: String, product: Seq[Long])
+case class CreateOrderForm(userId: String, paymentId: Long, status: String, product: Seq[Long])
+case class UpdateOrderForm(id: Long, userId: String, paymentId: Long, status: String, product: Seq[Long])

@@ -8,19 +8,20 @@ import play.filters.csrf.CSRF
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ Await, ExecutionContext, Future }
 
 @Singleton
-class ApiProductController @Inject()(productRepository: ProductRepository,
-                                  productCategoryRepository: ProductCategoryRepository,
-                                  cartProductRepository: CartProductRepository,
-                                  categoryRepository: CategoryRepository,
-                                  wishListProductRepository: WishListProductRepository,
-                                  discountCodeRepository: DiscountCodeRepository,
-                                  returnRepository: ReturnRepository,
-                                  opinionRepository: OpinionRepository,
-                                  orderProductRepository: OrderProductRepository,
-                                  cc: MessagesControllerComponents)(implicit ec: ExecutionContext)
+class ApiProductController @Inject() (
+  productRepository: ProductRepository,
+  productCategoryRepository: ProductCategoryRepository,
+  cartProductRepository: CartProductRepository,
+  categoryRepository: CategoryRepository,
+  wishListProductRepository: WishListProductRepository,
+  discountCodeRepository: DiscountCodeRepository,
+  returnRepository: ReturnRepository,
+  opinionRepository: OpinionRepository,
+  orderProductRepository: OrderProductRepository,
+  cc: MessagesControllerComponents)(implicit ec: ExecutionContext)
   extends MessagesAbstractController(cc) {
 
   def getToken = Action { implicit request =>
@@ -28,22 +29,18 @@ class ApiProductController @Inject()(productRepository: ProductRepository,
     Ok(token)
   }
 
-  def create:Action[AnyContent] = Action.async { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+  def create: Action[AnyContent] = Action.async { implicit request =>
+    val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("name")) {
       Future(Ok("No name parameter in query"))
-    }
-    else if (!params.contains("description")) {
+    } else if (!params.contains("description")) {
       Future(Ok("No description parameter in query"))
-    }
-    else if (!params.contains("price")) {
+    } else if (!params.contains("price")) {
       Future(Ok("No price parameter in query"))
-    }
-    else if (!params.contains("categories")) {
+    } else if (!params.contains("categories")) {
       Future(Ok("No categories parameter in query"))
-    }
-    else {
-      val catArray = params("categories").replaceAll(" ", "").split( ',' )
+    } else {
+      val catArray = params("categories").replaceAll(" ", "").split(',')
       val longCatArray = catArray.map(_.toLong)
       val prodId = productRepository.create(params("name"), params("description"), params("price").toInt)
       prodId.map(id => {
@@ -67,20 +64,18 @@ class ApiProductController @Inject()(productRepository: ProductRepository,
 
   def readById: Action[AnyContent] = Action { implicit request =>
 
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("id")) {
       Ok("No id parameter in query")
-    }
-    else {
+    } else {
       val productCategories = Await.result(productCategoryRepository.getByProductId(params("id").toLong), Duration.Inf)
       val products = Await.result(productRepository.getById(params("id").toLong), Duration.Inf)
-      val categories = productCategories.map( p => p.categoryId )
+      val categories = productCategories.map(p => p.categoryId)
       val jsonProducts = Json.toJson(products)
 
       val res = JsObject(Seq(
         ("product", jsonProducts),
-        ("categories", Json.toJson(categories))
-      ))
+        ("categories", Json.toJson(categories))))
 
       Ok(res)
     }
@@ -89,16 +84,15 @@ class ApiProductController @Inject()(productRepository: ProductRepository,
 
   def readByCategoryId: Action[AnyContent] = Action { implicit request =>
 
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("categoryId")) {
       Ok("No categoryId parameter in query")
-    }
-    else {
+    } else {
       val categoryId = params("categoryId").toLong
       val productCategories = Await.result(productCategoryRepository.getByCategoryId(categoryId), Duration.Inf)
       val prodArray = new ListBuffer[(Product)]()
 
-      productCategories.map( p => {
+      productCategories.map(p => {
         val product = Await.result(productRepository.getById(p.productId), Duration.Inf)
         prodArray += product
       })
@@ -110,12 +104,11 @@ class ApiProductController @Inject()(productRepository: ProductRepository,
   }
 
   def update = Action.async { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("id")) {
       Future(Ok("No id parameter in query"))
-    }
-    else {
+    } else {
 
       try {
         val id = params("id").toLong
@@ -128,7 +121,8 @@ class ApiProductController @Inject()(productRepository: ProductRepository,
             val price = if (params.contains("price")) params("price").toInt else p.price
             val categories = if (params.contains("categories")) params("categories").replaceAll(" ", "")
               .split(',')
-              .map(_.toLong) else Array[Long]()
+              .map(_.toLong)
+            else Array[Long]()
 
             if (categories.size != 0) productCategoryRepository.deleteProduct(id) // if categories are not empty, delete old one
 
@@ -145,8 +139,7 @@ class ApiProductController @Inject()(productRepository: ProductRepository,
           }
           case None => Ok("No object with such id")
         })
-      }
-      catch {
+      } catch {
         case e: NumberFormatException => Future(Ok("Id has to be integer"))
       }
 
@@ -154,12 +147,11 @@ class ApiProductController @Inject()(productRepository: ProductRepository,
   }
 
   def delete = Action { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("id")) {
       Ok("No id parameter in query")
-    }
-    else {
+    } else {
       try {
         productCategoryRepository.deleteProduct(params("id").toLong)
         productRepository.delete(params("id").toLong)
@@ -170,8 +162,7 @@ class ApiProductController @Inject()(productRepository: ProductRepository,
         opinionRepository.deleteProduct(params("id").toLong)
         orderProductRepository.deleteProduct(params("id").toLong)
         Ok("Product deleted!")
-      }
-      catch {
+      } catch {
         case e: NumberFormatException => Ok("Id has to be integer")
       }
     }

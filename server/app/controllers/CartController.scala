@@ -1,7 +1,7 @@
 package controllers
 
 import javax.inject._
-import models.{CartProduct, CartProductRepository, ProductRepository, UserRepository, Product}
+import models.{CartProduct, CartProductRepository, Product, ProductRepository, UserRepository}
 import play.api.data.Form
 import play.api.data.Forms.{mapping, number, seq}
 import play.api.mvc._
@@ -22,14 +22,14 @@ class CartController @Inject()(cartProductRepository: CartProductRepository,
 
   val createForm: Form[CreateCartForm] = Form {
     mapping(
-      "userId" -> longNumber,
+      "userId" -> nonEmptyText,
       "product" -> seq(number),
     )(CreateCartForm.apply)(CreateCartForm.unapply)
   }
 
   val updateForm: Form[UpdateCartForm] = Form {
     mapping(
-      "userId" -> longNumber,
+      "userId" -> nonEmptyText,
       "product" -> seq(number),
     )(UpdateCartForm.apply)(UpdateCartForm.unapply)
   }
@@ -77,7 +77,7 @@ class CartController @Inject()(cartProductRepository: CartProductRepository,
 
   def read: Action[AnyContent] = Action { implicit request =>
     val users = Await.result(userRepository.list(), Duration.Inf)
-    val cart_product = new ListBuffer[Seq[(Long, Long)]]()
+    val cart_product = new ListBuffer[Seq[(String, Long)]]()
 
     for (u <- users) {
       val cart_product_result = Await.result(cartProductRepository.getByUserId(u.id), Duration.Inf)
@@ -88,7 +88,7 @@ class CartController @Inject()(cartProductRepository: CartProductRepository,
     Ok(views.html.cartsread(users, prod_list_seq))
   }
 
-  def readById(id: Long): Action[AnyContent] = Action.async { implicit request =>
+  def readById(id: String): Action[AnyContent] = Action.async { implicit request =>
     val user = userRepository.getByIdOption(id)
     val cart_product = cartProductRepository.getByUserId(id)
     val cart_product_result = Await.result(cart_product, Duration.Inf)
@@ -105,12 +105,12 @@ class CartController @Inject()(cartProductRepository: CartProductRepository,
   }
 
   // By user id
-  def delete(id: Long): Action[AnyContent]  = Action {
+  def delete(id: String): Action[AnyContent]  = Action {
     cartProductRepository.deleteUser(id)
     Redirect("/readcarts")
   }
 
 }
 
-case class CreateCartForm(userId: Long, product: Seq[Int])
-case class UpdateCartForm(userId: Long, product: Seq[Int])
+case class CreateCartForm(userId: String, product: Seq[Int])
+case class UpdateCartForm(userId: String, product: Seq[Int])

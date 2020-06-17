@@ -4,6 +4,8 @@ import "antd/dist/antd.css";
 import {Button, List, Spin} from "antd";
 import { cartService } from './CartService';
 import CartModal from "./components/CartModal";
+import {withRouter} from "react-router-dom";
+import {commonService} from "../Common/CommonService";
 
 
 class CartView extends Component {
@@ -19,7 +21,9 @@ class CartView extends Component {
     }
 
     componentDidMount() {
-        this.loadProducts();
+        commonService.checkIfAuthenticated(this.props).then(result => {
+            if(result) this.loadProducts();
+        });
     }
 
     loadProducts = () => {
@@ -135,4 +139,4 @@ class CartView extends Component {
     }
 }
 
-export default CartView;
+export default withRouter(CartView);

@@ -2,9 +2,21 @@
 # Routes
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
+#Authorization
+GET         /                                controllers.ApplicationController.index
+GET         /signIn                          controllers.ApplicationController.signIn
+GET         /signUp                          controllers.ApplicationController.signUp
+GET         /signOut                         controllers.ApplicationController.signOut
+GET         /authenticate/:provider          controllers.SocialAuthController.authenticate(provider)
++nocsrf
+POST        /authenticate/credentials        controllers.CredentialsAuthController.authenticate
+
++nocsrf
+POST        /signUp                          controllers.SignUpController.signUp
+
 
 # An example controller showing a sample home page
-GET     /                           controllers.HomeController.index
+GET     /main                       controllers.HomeController.index
 # An example controller showing how to use dependency injection
 GET     /count                      controllers.CountController.count
 # An example controller showing how to write asynchronous code
@@ -24,13 +36,13 @@ GET    /deleteproduct/:id           controllers.ProductController.delete(id: Lon
 
 # Cart
 GET     /readcarts                  controllers.CartController.read
-GET     /readcart/:id               controllers.CartController.readById(id: Long)
+GET     /readcart/:id               controllers.CartController.readById(id: String)
 
 GET     /addcart                    controllers.CartController.create
 GET     /addcarthandle              controllers.CartController.createHandle
 
 GET     /updatecart                 controllers.CartController.update
-GET     /deletecart/:id             controllers.CartController.delete(id: Long)
+GET     /deletecart/:id             controllers.CartController.delete(id: String)
 
 # Category
 GET     /readcategories             controllers.CategoryController.read
@@ -82,15 +94,8 @@ GET     /deletepayment/:id          controllers.PaymentController.delete(id: Lon
 
 # User
 GET     /readusers                  controllers.UserController.read
-GET     /readuser/:id               controllers.UserController.readById(id: Long)
-
-GET     /adduser                    controllers.UserController.create
-POST    /adduserhandle              controllers.UserController.createHandle
-
-GET     /updateuser/:id             controllers.UserController.update(id: Long)
-POST    /updateuserhandle           controllers.UserController.updateHandle
-
-GET     /deleteuser/:id             controllers.UserController.delete(id: Long)
+GET     /readuser/:id               controllers.UserController.readById(id: String)
+GET     /deleteuser/:id             controllers.UserController.delete(id: String)
 
 # Return
 
@@ -108,14 +113,14 @@ GET     /deletereturn/:id            controllers.ReturnController.delete(id: Lon
 # WishList
 
 GET     /readwishlists               controllers.WishListController.read
-GET     /readwishlist/:id            controllers.WishListController.readById(id: Long)
+GET     /readwishlist/:id            controllers.WishListController.readById(id: String)
 
 GET     /addwishlist                 controllers.WishListController.create
 POST    /addwishlisthandle           controllers.WishListController.createHandle
 
 GET     /updatewishlist              controllers.WishListController.update
 
-GET     /deletewishlist/:id          controllers.WishListController.delete(id: Long)
+GET     /deletewishlist/:id          controllers.WishListController.delete(id: String)
 
 
 # DiscountCode
@@ -187,7 +192,6 @@ DELETE  /payment                    controllers.ApiPaymentController.delete
 # User
 GET     /user/token                 controllers.ApiUserController.getToken
 GET     /users                      controllers.ApiUserController.read
-POST    /user                       controllers.ApiUserController.create
 GET     /user                       controllers.ApiUserController.readById
 PUT     /user                       controllers.ApiUserController.update
 DELETE  /user                       controllers.ApiUserController.delete
@@ -220,6 +224,7 @@ DELETE  /discountcode               controllers.ApiDiscountCodeController.delete
 GET     /discountcode/check         controllers.ApiDiscountCodeController.checkCodeForProducts
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+#GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
-      
+GET         /assets/*file                    controllers.Assets.versioned(path="/public", file: Asset)
+->          /webjars                         webjars.Routes

@@ -44,13 +44,13 @@ const putUserData = (data) => {
 
     const userQs = {
         id: user.user_id,
-        email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
         address: data.address
     };
 
     const fetchData = {
         method: 'PUT',
-        mode: "cors",
         headers: new Headers(),
         redirect: 'follow'
     };

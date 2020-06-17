@@ -1,4 +1,4 @@
-@(cart: User, product: Seq[(Long, Long)])
+@(cart: ApiUser, product: Seq[(String, Long)])
 
 <b>@cart.id</b>
 
@@ -8,4 +8,4 @@
     @prod._2
   }
 
-<a href="@controllers.routes.CartController.delete(cart.id)">Delete</a>
+<a href="@controllers.routes.CartController.delete(cart.id.toString)">Delete</a>

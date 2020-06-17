@@ -1,10 +1,12 @@
 package models
 
-import javax.inject.{Inject, Singleton}
+import java.util.UUID
+
+import javax.inject.{ Inject, Singleton }
 import play.api.db.slick.DatabaseConfigProvider
 import slick.jdbc.JdbcProfile
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 @Singleton
 class ReturnRepository @Inject() (val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext) {
@@ -15,7 +17,7 @@ class ReturnRepository @Inject() (val dbConfigProvider: DatabaseConfigProvider)(
 
   class ReturnTable(tag: Tag) extends Table[Return](tag, "return") {
     def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
-    def userId = column[Long]("userId")
+    def userId = column[String]("userId")
     def productId = column[Long]("productId")
     def status = column[String]("status")
     def * = (id, userId, productId, status) <> ((Return.apply _).tupled, Return.unapply)
@@ -23,11 +25,10 @@ class ReturnRepository @Inject() (val dbConfigProvider: DatabaseConfigProvider)(
 
   val return_table = TableQuery[ReturnTable]
 
-  def create(userId: Long, productId: Long, status: String): Future[Return] = db.run {
+  def create(userId: String, productId: Long, status: String): Future[Return] = db.run {
     (return_table.map(r => (r.userId, r.productId, r.status))
       returning return_table.map(_.id)
-      into { case ((userId, productId, status), id) => Return(id, userId, productId, status)}
-      ) += (userId, productId, status)
+      into { case ((userId, productId, status), id) => Return(id, userId, productId, status) }) += (userId, productId, status)
   }
 
   def list(): Future[Seq[Return]] = db.run {
@@ -42,8 +43,8 @@ class ReturnRepository @Inject() (val dbConfigProvider: DatabaseConfigProvider)(
     return_table.filter(_.id === id).result.headOption
   }
 
-  def getByUserId(userId: Long): Future[Seq[(Long, Long, Long, String)]] = db.run {
-    return_table.map{ case (r) => (r.id, r.productId, r.userId, r.status) }.filter(_._3 === userId).result
+  def getByUserId(userId: String): Future[Seq[(Long, Long, String, String)]] = db.run {
+    return_table.map { case (r) => (r.id, r.productId, r.userId, r.status) }.filter(_._3 === userId).result
   }
 
   def update(id: Long, new_return: Return): Future[Unit] = {

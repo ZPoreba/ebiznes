@@ -21,14 +21,14 @@ class WishListController @Inject()(wishListProductRepository: WishListProductRep
 
   val createForm: Form[CreateWishListForm] = Form {
     mapping(
-      "userId" -> longNumber,
+      "userId" -> nonEmptyText,
       "product" -> seq(number),
     )(CreateWishListForm.apply)(CreateWishListForm.unapply)
   }
 
   val updateForm: Form[UpdateWishListForm] = Form {
     mapping(
-      "userId" -> longNumber,
+      "userId" -> nonEmptyText,
       "product" -> seq(number),
     )(UpdateWishListForm.apply)(UpdateWishListForm.unapply)
   }
@@ -78,7 +78,7 @@ class WishListController @Inject()(wishListProductRepository: WishListProductRep
 
   def read: Action[AnyContent] = Action { implicit request =>
     val users = Await.result(userRepository.list(), Duration.Inf)
-    val wishlist_product = new ListBuffer[Seq[(Long, Long)]]()
+    val wishlist_product = new ListBuffer[Seq[(String, Long)]]()
 
     for (u <- users) {
       val wishlist_product_result = Await.result(wishListProductRepository.getByUserId(u.id), Duration.Inf)
@@ -89,7 +89,7 @@ class WishListController @Inject()(wishListProductRepository: WishListProductRep
     Ok(views.html.wishlistsread(users, prod_list_seq))
   }
 
-  def readById(id: Long): Action[AnyContent] = Action.async { implicit request =>
+  def readById(id: String): Action[AnyContent] = Action.async { implicit request =>
     val user = userRepository.getByIdOption(id)
     val wishlist_product = wishListProductRepository.getByUserId(id)
     val wishlist_product_result = Await.result(wishlist_product, Duration.Inf)
@@ -106,12 +106,12 @@ class WishListController @Inject()(wishListProductRepository: WishListProductRep
   }
 
   // By user id
-  def delete(id: Long): Action[AnyContent]  = Action {
+  def delete(id: String): Action[AnyContent]  = Action {
     wishListProductRepository.deleteUser(id)
     Redirect("/readwishlists")
   }
 
 }
 
-case class CreateWishListForm(userId: Long, product: Seq[Int])
-case class UpdateWishListForm(userId: Long, product: Seq[Int])
+case class CreateWishListForm(userId: String, product: Seq[Int])
+case class UpdateWishListForm(userId: String, product: Seq[Int])

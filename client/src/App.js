@@ -8,17 +8,6 @@ import 'antd/dist/antd.css';
 
 class App extends Component {
 
-  // TODO - delete after implementation of authorization
-  constructor(props) {
-      super(props);
-
-      let user = {
-          user_id: 1
-      }
-
-      window.localStorage.setItem('user', JSON.stringify(user));
-  }
-
   render() {
 
     return (

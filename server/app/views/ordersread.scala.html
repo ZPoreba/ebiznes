@@ -1,4 +1,4 @@
-@(orders: Seq[Order], product: List[Seq[(Long, Long, Long, String, Long)]] )
+@(orders: Seq[Order], product: List[Seq[(Long, String, Long, String, Long)]] )
 @import java.math.BigInteger; var i=0
 
   @for(order <- orders) {

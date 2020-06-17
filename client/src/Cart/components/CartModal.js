@@ -100,7 +100,7 @@ class CartModal extends Component {
                     disabled={this.state.discounted}
                     style={{float: 'right', width: '140px'}} />
 
-                <strong>Ordering person: </strong>{this.state.userData.firstName} {this.state.userData.secondName}
+                <strong>Ordering person: </strong>{this.state.userData.fullName}
                 <br />
                 <strong>Address: </strong>{this.state.userData.address}
                 <br/>

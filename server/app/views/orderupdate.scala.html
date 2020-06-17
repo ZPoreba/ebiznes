@@ -1,4 +1,4 @@
-@(order: Form[UpdateOrderForm], user: Seq[User], payment: Seq[Payment], product: Seq[(String, String)])(implicit request: MessagesRequestHeader, flash: Flash)
+@(order: Form[UpdateOrderForm], user: Seq[ApiUser], payment: Seq[Payment], product: Seq[(String, String)])(implicit request: MessagesRequestHeader, flash: Flash)
 
 @import helper._
 
@@ -11,7 +11,7 @@
   User:
   <select name="userId" id="userId">
   @for(u <- user){
-    <option value="@u.id">@u.firstName @u.secondName</option>
+    <option value="@u.id">@u.firstName @u.lastName</option>
   }
   </select>
 

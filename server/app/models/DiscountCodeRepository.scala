@@ -1,15 +1,15 @@
 package models
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.{ Inject, Singleton }
 import play.api.db.slick.DatabaseConfigProvider
 import slick.jdbc.JdbcProfile
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 @Singleton
-class DiscountCodeRepository @Inject() (val dbConfigProvider: DatabaseConfigProvider,
-                                        val productRepository: ProductRepository
-                                       )(implicit ec: ExecutionContext) {
+class DiscountCodeRepository @Inject() (
+  val dbConfigProvider: DatabaseConfigProvider,
+  val productRepository: ProductRepository)(implicit ec: ExecutionContext) {
   val dbConfig = dbConfigProvider.get[JdbcProfile]
 
   import dbConfig._
@@ -26,7 +26,7 @@ class DiscountCodeRepository @Inject() (val dbConfigProvider: DatabaseConfigProv
     import productRepository.ProductTable
 
     def productFK = foreignKey("FK_PRODUCT", productId, TableQuery[ProductTable])(product =>
-      product.id, onDelete=ForeignKeyAction.Cascade)
+      product.id, onDelete = ForeignKeyAction.Cascade)
 
   }
 
@@ -53,7 +53,7 @@ class DiscountCodeRepository @Inject() (val dbConfigProvider: DatabaseConfigProv
   def delete(code: Long): Future[Unit] = db.run(discountCode.filter(_.code === code).delete).map(_ => ())
 
   def exists(productId: Long, code: Long): Future[Boolean] =
-    db.run(discountCode.filter(dc => ( dc.productId === productId && dc.code === code )).exists.result)
+    db.run(discountCode.filter(dc => (dc.productId === productId && dc.code === code)).exists.result)
 
 }
 

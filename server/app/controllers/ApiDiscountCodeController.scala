@@ -1,34 +1,32 @@
 package controllers
 
 import javax.inject._
-import models.{DiscountCodeRepository, ProductRepository}
+import models.{ DiscountCodeRepository, ProductRepository }
 import play.api.libs.json._
 import play.api.mvc._
 import play.filters.csrf.CSRF
 
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
-
+import scala.concurrent.{ Await, ExecutionContext, Future }
 
 @Singleton
-class ApiDiscountCodeController @Inject()(productRepository: ProductRepository,
-                                       discountCodeRepository: DiscountCodeRepository,
-                                       cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
+class ApiDiscountCodeController @Inject() (
+  productRepository: ProductRepository,
+  discountCodeRepository: DiscountCodeRepository,
+  cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
 
   def getToken = Action { implicit request =>
     val token = CSRF.getToken.get.value
     Ok(token)
   }
 
-  def create:Action[AnyContent] = Action.async { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+  def create: Action[AnyContent] = Action.async { implicit request =>
+    val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("productId")) {
       Future(Ok("No productId parameter in query"))
-    }
-    else if (!params.contains("code")) {
+    } else if (!params.contains("code")) {
       Future(Ok("No code parameter in query"))
-    }
-    else {
+    } else {
 
       val prodId = params("productId").toInt
       val code = params("code").toInt
@@ -50,11 +48,10 @@ class ApiDiscountCodeController @Inject()(productRepository: ProductRepository,
 
   def readById: Action[AnyContent] = Action { implicit request =>
 
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("productId")) {
       Ok("No productId parameter in query")
-    }
-    else {
+    } else {
       val codes = Await.result(discountCodeRepository.getById(params("productId").toLong), Duration.Inf)
       Ok(Json.toJson(codes))
     }
@@ -63,15 +60,13 @@ class ApiDiscountCodeController @Inject()(productRepository: ProductRepository,
 
   def checkCodeForProducts: Action[AnyContent] = Action { implicit request =>
 
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("code")) {
       Ok("No code parameter in query")
-    }
-    else if (!params.contains("products")) {
+    } else if (!params.contains("products")) {
       Ok("No products parameter in products")
-    }
-    else {
-      val prodArray = params("products").replaceAll(" ", "").split( ',' )
+    } else {
+      val prodArray = params("products").replaceAll(" ", "").split(',')
       val longProdArray = prodArray.map(_.toLong)
       val code = params("code").toLong
       var exists = false;
@@ -93,17 +88,15 @@ class ApiDiscountCodeController @Inject()(productRepository: ProductRepository,
   }
 
   def delete = Action { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("id")) {
       Ok("No id parameter in query")
-    }
-    else {
+    } else {
       try {
         discountCodeRepository.delete(params("id").toLong)
         Ok("DiscountCode deleted!")
-      }
-      catch {
+      } catch {
         case e: NumberFormatException => Ok("Id has to be integer")
       }
     }

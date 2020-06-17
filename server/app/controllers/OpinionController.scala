@@ -1,37 +1,36 @@
 package controllers
 
 import javax.inject._
-import models.{Opinion, OpinionRepository, ProductRepository, UserRepository}
+import models.{ Opinion, OpinionRepository, ProductRepository, UserRepository }
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.mvc._
 import play.filters.csrf.CSRF
 import play.api.data.Forms._
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
 
+import scala.concurrent.duration.Duration
+import scala.concurrent.{ Await, ExecutionContext, Future }
 
 @Singleton
-class OpinionController @Inject()(opinionRepository: OpinionRepository,
-                                  productRepository: ProductRepository,
-                                  userRepository: UserRepository,
-                                  cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
+class OpinionController @Inject() (
+  opinionRepository: OpinionRepository,
+  productRepository: ProductRepository,
+  userRepository: UserRepository,
+  cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
 
   val createForm: Form[CreateOpinionForm] = Form {
     mapping(
-      "userId" -> longNumber,
+      "userId" -> nonEmptyText,
       "productId" -> longNumber,
-      "content" -> nonEmptyText
-    )(CreateOpinionForm.apply)(CreateOpinionForm.unapply)
+      "content" -> nonEmptyText)(CreateOpinionForm.apply)(CreateOpinionForm.unapply)
   }
 
   val updateForm: Form[UpdateOpinionForm] = Form {
     mapping(
       "id" -> longNumber,
-      "userId" -> longNumber,
+      "userId" -> nonEmptyText,
       "productId" -> longNumber,
-      "content" -> nonEmptyText
-    )(UpdateOpinionForm.apply)(UpdateOpinionForm.unapply)
+      "content" -> nonEmptyText)(UpdateOpinionForm.apply)(UpdateOpinionForm.unapply)
   }
 
   def create: Action[AnyContent] = Action { implicit request =>
@@ -43,15 +42,13 @@ class OpinionController @Inject()(opinionRepository: OpinionRepository,
     createForm.bindFromRequest.fold(
       errorForm => {
         Future.successful(
-          BadRequest(views.html.opinionadd(errorForm))
-        )
+          BadRequest(views.html.opinionadd(errorForm)))
       },
       opinion => {
         opinionRepository.create(opinion.userId, opinion.productId, opinion.content).map { _ =>
           Redirect(routes.OpinionController.create()).flashing("success" -> "opinion.created")
         }
-      }
-    )
+      })
 
   }
 
@@ -81,24 +78,22 @@ class OpinionController @Inject()(opinionRepository: OpinionRepository,
     updateForm.bindFromRequest.fold(
       errorForm => {
         Future.successful(
-          BadRequest(views.html.opinionupdate(errorForm))
-        )
+          BadRequest(views.html.opinionupdate(errorForm)))
       },
       opinion => {
         opinionRepository.update(opinion.id, Opinion(opinion.id, opinion.userId, opinion.productId, opinion.content)).map { _ =>
           Redirect(routes.OpinionController.update(opinion.id)).flashing("success" -> "opinion updated")
         }
-      }
-    )
+      })
 
   }
 
   def delete(id: Long): Action[AnyContent] = Action {
-        opinionRepository.delete(id)
+    opinionRepository.delete(id)
     Redirect("/readopinions")
   }
 
 }
 
-case class CreateOpinionForm(userId: Long, productId: Long, content: String)
-case class UpdateOpinionForm(id: Long, userId: Long, productId: Long, content: String)
+case class CreateOpinionForm(userId: String, productId: Long, content: String)
+case class UpdateOpinionForm(id: Long, userId: String, productId: Long, content: String)

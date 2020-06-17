@@ -1,39 +1,36 @@
 package controllers
 
 import javax.inject._
-import models.{Opinion, OpinionRepository, ProductRepository, UserRepository}
+import models.{ Opinion, OpinionRepository, ProductRepository, UserRepository }
 import play.api.libs.json._
 import play.api.mvc._
 import play.filters.csrf.CSRF
 
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
-
+import scala.concurrent.{ Await, ExecutionContext, Future }
 
 @Singleton
-class ApiOpinionController @Inject()(opinionRepository: OpinionRepository,
-                                  productRepository: ProductRepository,
-                                  userRepository: UserRepository,
-                                  cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
+class ApiOpinionController @Inject() (
+  opinionRepository: OpinionRepository,
+  productRepository: ProductRepository,
+  userRepository: UserRepository,
+  cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
 
   def getToken = Action { implicit request =>
     val token = CSRF.getToken.get.value
     Ok(token)
   }
 
-  def create:Action[AnyContent] = Action.async { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+  def create: Action[AnyContent] = Action.async { implicit request =>
+    val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("userId")) {
       Future(Ok("No userId parameter in query"))
-    }
-    else if (!params.contains("productId")) {
+    } else if (!params.contains("productId")) {
       Future(Ok("No productId parameter in query"))
-    }
-    else if (!params.contains("content")) {
+    } else if (!params.contains("content")) {
       Future(Ok("No content parameter in query"))
-    }
-    else {
-      val userId = params("userId").toInt
+    } else {
+      val userId = params("userId")
       val prodId = params("productId").toInt
       val content = params("content")
 
@@ -56,11 +53,10 @@ class ApiOpinionController @Inject()(opinionRepository: OpinionRepository,
 
   def readById: Action[AnyContent] = Action { implicit request =>
 
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("id")) {
       Ok("No id parameter in query")
-    }
-    else {
+    } else {
       val opinions = Await.result(opinionRepository.getById(params("id").toLong), Duration.Inf)
       Ok(Json.toJson(opinions))
     }
@@ -69,11 +65,10 @@ class ApiOpinionController @Inject()(opinionRepository: OpinionRepository,
 
   def readByProductId: Action[AnyContent] = Action { implicit request =>
 
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("productId")) {
       Ok("No productId parameter in query")
-    }
-    else {
+    } else {
       val opinions = Await.result(opinionRepository.getByProductId(params("productId").toLong), Duration.Inf)
       Ok(Json.toJson(opinions))
     }
@@ -81,12 +76,11 @@ class ApiOpinionController @Inject()(opinionRepository: OpinionRepository,
   }
 
   def update = Action.async { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("id")) {
       Future(Ok("No id parameter in query"))
-    }
-    else {
+    } else {
 
       try {
         val id = params("id").toLong
@@ -94,7 +88,7 @@ class ApiOpinionController @Inject()(opinionRepository: OpinionRepository,
 
         opinions.map(opinion => opinion match {
           case Some(o) => {
-            val userId = if (params.contains("userId")) params("userId").toLong else o.userId
+            val userId = if (params.contains("userId")) params("userId") else o.userId
             val productId = if (params.contains("productId")) params("productId").toLong else o.productId
             val content = if (params.contains("content")) params("content") else o.content
 
@@ -104,8 +98,7 @@ class ApiOpinionController @Inject()(opinionRepository: OpinionRepository,
           }
           case None => Ok("No object with such id")
         })
-      }
-      catch {
+      } catch {
         case e: NumberFormatException => Future(Ok("Id, userId and productId have to be integer"))
       }
 
@@ -113,17 +106,15 @@ class ApiOpinionController @Inject()(opinionRepository: OpinionRepository,
   }
 
   def delete = Action { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("id")) {
       Ok("No id parameter in query")
-    }
-    else {
+    } else {
       try {
         opinionRepository.delete(params("id").toLong)
         Ok("Opinion deleted!")
-      }
-      catch {
+      } catch {
         case e: NumberFormatException => Ok("Id has to be integer")
       }
     }

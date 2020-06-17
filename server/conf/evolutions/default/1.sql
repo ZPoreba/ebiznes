@@ -26,23 +26,24 @@ CREATE TABLE "payment" (
 );
 
 CREATE TABLE "user" (
- "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
- "firstName" VARCHAR NOT NULL,
- "secondName" VARCHAR NOT NULL,
- "email" VARCHAR NOT NULL,
- "password" TEXT NOT NULL,
- "address" VARCHAR NOT NULL
+    "id" VARCHAR NOT NULL PRIMARY KEY,
+    "firstName" VARCHAR,
+    "lastName" VARCHAR,
+    "fullName" VARCHAR,
+    "email" VARCHAR,
+    "avatarURL" VARCHAR,
+    "address" VARCHAR NOT NULL
 );
 
 CREATE TABLE "cart_product" (
- "userId" INTEGER NOT NULL,
+ "userId" VARCHAR NOT NULL,
  "productId" INTEGER NOT NULL,
  FOREIGN KEY(userId) references user(id),
  FOREIGN KEY(productId) references product(id)
 );
 
 CREATE TABLE "wishlist_product" (
- "userId" INTEGER NOT NULL,
+ "userId" VARCHAR NOT NULL,
  "productId" INTEGER NOT NULL,
  FOREIGN KEY(userId) references user(id),
  FOREIGN KEY(productId) references product(id)
@@ -56,7 +57,7 @@ CREATE TABLE "discount_code" (
 
 CREATE TABLE "return" (
  "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
- "userId" INTEGER NOT NULL,
+ "userId" VARCHAR NOT NULL,
  "productId" INTEGER NOT NULL,
  "status" VARCHAR NOT NULL,
  FOREIGN KEY(userId) references user(id),
@@ -65,7 +66,7 @@ CREATE TABLE "return" (
 
 CREATE TABLE "opinion" (
  "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
- "userId" INTEGER NOT NULL,
+ "userId" VARCHAR NOT NULL,
  "productId" INTEGER NOT NULL,
  "content" VARCHAR NOT NULL,
  FOREIGN KEY(userId) references user(id),
@@ -74,7 +75,7 @@ CREATE TABLE "opinion" (
 
 CREATE TABLE "order_t" (
  "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
- "userId" INTEGER NOT NULL,
+ "userId" VARCHAR NOT NULL,
  "paymentId" INTEGER NOT NULL,
  "status" VARCHAR NOT NULL,
  FOREIGN KEY(userId) references user(id),

@@ -1,4 +1,4 @@
-@(wishlist: Form[CreateWishListForm], product: Seq[(String, String)], user: Seq[User])(implicit request: MessagesRequestHeader, flash: Flash)
+@(wishlist: Form[CreateWishListForm], product: Seq[(String, String)], user: Seq[ApiUser])(implicit request: MessagesRequestHeader, flash: Flash)
 
 @import helper._
 
@@ -9,7 +9,7 @@
     User:
     <select name="userId" id="userId">
     @for(u <- user){
-        <option value="@u.id">@u.firstName @u.secondName</option>
+        <option value="@u.id">@u.firstName @u.lastName</option>
     }
     </select>
 

@@ -1,15 +1,17 @@
 import React, { Component } from 'react';
 import './style.css';
 import "antd/dist/antd.css";
-import { Card, Input, Button } from 'antd';
+import { Card, Input, Button, Avatar } from 'antd';
 import { profileService } from './ProfileService';
+import {withRouter} from "react-router-dom";
+import {commonService} from "../Common/CommonService";
 
+const { Meta } = Card;
 
 class ProfileView extends Component {
 
     constructor(props) {
         super(props);
-
         this.state = {
             originalData: undefined,
             userData: undefined,
@@ -18,7 +20,9 @@ class ProfileView extends Component {
     }
 
     componentDidMount() {
-        this.loadUserData();
+        commonService.checkIfAuthenticated(this.props).then(result => {
+            if(result) this.loadUserData();
+        });
     }
 
     loadUserData = () => {
@@ -34,16 +38,18 @@ class ProfileView extends Component {
     }
 
     cancelEditing = () => {
-        this.refs.email.setState({value: this.state.originalData.email});
+        this.refs.firstName.setState({value: this.state.originalData.firstName});
+        this.refs.lastName.setState({value: this.state.originalData.lastName});
         this.refs.address.setState({value: this.state.originalData.address});
         this.setState({readOnly: true});
     }
 
     saveEditing = () => {
-        let email = this.refs.email.state.value;
+        let firstName = this.refs.firstName.state.value;
+        let lastName = this.refs.lastName.state.value;
         let address = this.refs.address.state.value;
 
-        profileService.putUserData({email: email, address: address}).then(resp => {
+        profileService.putUserData({firstName: firstName, lastName: lastName, address: address}).then(resp => {
             alert(resp);
         });
         this.setState({readOnly: true});
@@ -79,12 +85,25 @@ class ProfileView extends Component {
                 {
                     this.state.userData ?
                         <Card className="profileCard"
-                              title={`${this.state.userData.firstName} ${this.state.userData.secondName}`}
-                              bordered={false}
-                              style={{width: 300}}>
+                              bordered={true}
+                              style={{width: 400}}>
                             <div style={{textAlign: 'left'}}>
+                                <Meta
+                                    avatar={<Avatar src={this.state.userData.avatarURL} />}
+                                    title={this.state.userData.fullName} />
+
+                                <br />
+                                <br />
                                 <strong>email: </strong>
-                                <Input ref='email' defaultValue={this.state.userData.email} disabled={this.state.readOnly} />
+                                <Input defaultValue={this.state.userData.email} disabled={true} />
+                                <br/>
+                                <br/>
+                                <strong>first name: </strong>
+                                <Input ref='firstName' defaultValue={this.state.userData.firstName} disabled={this.state.readOnly} />
+                                <br/>
+                                <br/>
+                                <strong>last name: </strong>
+                                <Input ref='lastName' defaultValue={this.state.userData.lastName} disabled={this.state.readOnly} />
                                 <br/>
                                 <br/>
                                 <strong>address: </strong>
@@ -99,4 +118,4 @@ class ProfileView extends Component {
 
 }
 
-export default ProfileView;
+export default withRouter(ProfileView);

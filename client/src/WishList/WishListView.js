@@ -4,6 +4,8 @@ import "antd/dist/antd.css";
 import {Button, List, Spin} from "antd";
 import { wishlistService } from './WishListService';
 import {productsService} from "../Products/ProductsService";
+import {withRouter} from "react-router-dom";
+import {commonService} from "../Common/CommonService";
 
 
 class WishListView extends Component {
@@ -18,7 +20,9 @@ class WishListView extends Component {
     }
 
     componentDidMount() {
-        this.loadProducts();
+        commonService.checkIfAuthenticated(this.props).then(result => {
+            if(result) this.loadProducts();
+        });
     }
 
     loadProducts = () => {
@@ -105,4 +109,4 @@ class WishListView extends Component {
     }
 }
 
-export default WishListView;
+export default withRouter(WishListView);

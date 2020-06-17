@@ -1,13 +1,36 @@
 import React, { Component } from 'react';
 import { Layout, Menu } from 'antd';
 import { Link, withRouter } from 'react-router-dom';
+import { commonService } from './CommonService';
 
 
 const { Header, Content } = Layout;
 
 class CustomLayout extends Component{
 
-    renderMenu () {
+    constructor(props) {
+        super(props);
+        this.state = {
+            authenticator: false
+        }
+
+        this.props.history.listen((location, action) => {
+            if(this.updater.isMounted(this)) this.setCookies();
+        });
+    }
+
+    logOut = () => {
+        commonService.logout().then(resp => {
+            this.props.history.push('/login');
+        })
+    }
+
+    setCookies = () => {
+        let cookie = commonService.getCookie('authenticator');
+        this.setState({authenticator: cookie});
+    }
+
+    renderMenu = () => {
         return(
             <Menu
                 theme="dark"
@@ -15,7 +38,7 @@ class CustomLayout extends Component{
                 <Menu.Item
                     key="logout"
                     style={{float: 'right'}}>
-                    <Link to="/">LOG OUT</Link>
+                    <a onClick={() => this.logOut()} >LOG OUT</a>
                 </Menu.Item>
                 <Menu.Item
                     key="search"
@@ -51,6 +74,10 @@ class CustomLayout extends Component{
         )
     }
 
+    componentDidMount() {
+        this.setCookies();
+    }
+
     render(){
         return (
             <Layout>
@@ -62,7 +89,10 @@ class CustomLayout extends Component{
                     <div style={{float: "left"}}>
                         <Link style={{fontFamily: "Times New Roman"}} to="/" onClick={this.onLogoClick} > eBusiness </Link>
                     </div>
-                    <this.renderMenu />
+                    {
+                        this.state.authenticator ?
+                        <this.renderMenu/>: null
+                    }
                 </Header>
                 <Content style={{ padding: '0 0px', background: 'none', height: "100%" }}>
                     <div>

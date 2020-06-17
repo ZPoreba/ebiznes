@@ -1,10 +1,54 @@
 # --- !Ups
+CREATE TABLE "logininfo" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "providerID" VARCHAR NOT NULL,
+    "providerKey" VARCHAR NOT NULL
+);
 
-INSERT INTO "category"("name") VALUES("sample1");
-INSERT INTO "category"("name") VALUES("sample2");
-INSERT INTO "product_category"("productId", "categoryId") VALUES(2, 2);
+CREATE TABLE "userlogininfo" (
+    "userID" VARCHAR NOT NULL,
+    "loginInfoId" INT NOT NULL
+);
+
+CREATE TABLE "passwordinfo" (
+    "hasher" VARCHAR NOT NULL,
+    "password" VARCHAR NOT NULL,
+    "salt" VARCHAR,
+    "loginInfoId" INT NOT NULL
+);
+
+CREATE TABLE "oauth1info" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "token" VARCHAR NOT NULL,
+    "secret" VARCHAR NOT NULL,
+    "loginInfoId" INT NOT NULL
+);
+
+CREATE TABLE "oauth2info" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "accesstoken" VARCHAR NOT NULL,
+    "tokentype" VARCHAR,
+    "expiresin" INTEGER,
+    "refreshtoken" VARCHAR,
+    "logininfoid" INT NOT NULL
+);
+
+CREATE TABLE "openidinfo" (
+    "id" VARCHAR NOT NULL PRIMARY KEY,
+    "logininfoid" BIGINT NOT NULL
+);
+
+CREATE TABLE "openidattributes" (
+    "id" VARCHAR NOT NULL,
+    "key" VARCHAR NOT NULL,
+    "value" VARCHAR NOT NULL
+);
 
 # --- !Downs
-
-DELETE FROM "category" WHERE name="sample1";
-DELETE FROM "category" WHERE name="sample2";
+DROP TABLE "openidattributes"
+DROP TABLE "openidinfo"
+DROP TABLE "oauth2info"
+DROP TABLE "oauth1info"
+DROP TABLE "passwordinfo"
+DROP TABLE "userlogininfo"
+DROP TABLE "logininfo"

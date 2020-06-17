@@ -4,6 +4,8 @@ import "antd/dist/antd.css";
 import {Button, List, Spin, Modal} from "antd";
 import { ordersService } from './OrdersService';
 import OrderModal from "./components/OrderModal";
+import {withRouter} from "react-router-dom";
+import {commonService} from "../Common/CommonService";
 
 
 class OrdersView extends Component {
@@ -19,7 +21,9 @@ class OrdersView extends Component {
     }
 
     componentDidMount() {
-        this.loadProducts();
+        commonService.checkIfAuthenticated(this.props).then(result => {
+            if(result) this.loadProducts();
+        });
     }
 
     uniq(a) {
@@ -92,4 +96,4 @@ class OrdersView extends Component {
     }
 }
 
-export default OrdersView;
+export default withRouter(OrdersView);

@@ -3,7 +3,8 @@ package models
 import javax.inject.{ Inject, Singleton }
 import play.api.db.slick.DatabaseConfigProvider
 import slick.jdbc.JdbcProfile
-import scala.concurrent.{ Future, ExecutionContext }
+
+import scala.concurrent.{ ExecutionContext, Future }
 
 @Singleton
 class OrderRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext) {
@@ -12,12 +13,10 @@ class OrderRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(impli
   import dbConfig._
   import profile.api._
 
-
   class OrderTable(tag: Tag) extends Table[Order](tag, "order_t") {
 
-
     def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
-    def userId = column[Long]("userId")
+    def userId = column[String]("userId")
     def paymentId = column[Long]("paymentId")
     def status = column[String]("status")
     def * = (id, userId, paymentId, status) <> ((Order.apply _).tupled, Order.unapply)
@@ -26,14 +25,15 @@ class OrderRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(impli
 
   private val order = TableQuery[OrderTable]
 
-  def create(userId: Long, paymentId: Long, status: String): Future[Long] = {
+  def create(userId: String, paymentId: Long, status: String): Future[Long] = {
     db.run {
       (order.map(p => (p.userId, p.paymentId, p.status))
         returning order.map(_.id)
-        into {case ((userId, paymentId, status), id) => {
-        Order(id, userId, paymentId, status)
-      }}
-        ) += (userId, paymentId, status)
+        into {
+          case ((userId, paymentId, status), id) => {
+            Order(id, userId, paymentId, status)
+          }
+        }) += (userId, paymentId, status)
     }
       .map(res => res.id)
   }
@@ -52,7 +52,7 @@ class OrderRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(impli
 
   def delete(id: Long): Future[Unit] = db.run(order.filter(_.id === id).delete).map(_ => ())
 
-  def deleteUser(id: Long): Future[Unit] = {
+  def deleteUser(id: String): Future[Unit] = {
     db.run(order.filter(_.userId === id).delete).map(_ => ())
   }
 

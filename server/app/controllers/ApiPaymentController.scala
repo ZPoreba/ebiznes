@@ -3,24 +3,23 @@ package controllers
 import java.text.SimpleDateFormat
 
 import javax.inject._
-import models.{Payment, PaymentRepository}
+import models.{ Payment, PaymentRepository }
 import play.api.libs.json._
 import play.api.mvc._
 import play.filters.csrf.CSRF
 
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
-
+import scala.concurrent.{ Await, ExecutionContext, Future }
 
 @Singleton
-class ApiPaymentController @Inject()(paymentRepository: PaymentRepository, cc: MessagesControllerComponents) (implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
+class ApiPaymentController @Inject() (paymentRepository: PaymentRepository, cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
 
   def getToken = Action { implicit request =>
     val token = CSRF.getToken.get.value
     Ok(token)
   }
 
-  def stringToDate(date:String, format:String = "yyyy-MM-dd"):java.sql.Date = {
+  def stringToDate(date: String, format: String = "yyyy-MM-dd"): java.sql.Date = {
     import java.text._
     val sdf = new SimpleDateFormat(format)
     val utilDate = sdf.parse(date)
@@ -28,20 +27,17 @@ class ApiPaymentController @Inject()(paymentRepository: PaymentRepository, cc: M
   }
 
   def create = Action.async { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("date")) {
       Future(Ok("No date parameter in query"))
-    }
-    else if (!params.contains("status")) {
+    } else if (!params.contains("status")) {
       Future(Ok("No status parameter in query"))
-    }
-    else {
+    } else {
       val date = stringToDate(params("date"))
       val payment = Await.result(paymentRepository.create(date, params("status")), Duration.Inf)
 
       val res = JsObject(Seq(
-        ("paymentId", Json.toJson(payment.id))
-      ))
+        ("paymentId", Json.toJson(payment.id))))
 
       Future(Ok(res))
     }
@@ -54,11 +50,10 @@ class ApiPaymentController @Inject()(paymentRepository: PaymentRepository, cc: M
 
   def readById: Action[AnyContent] = Action.async { implicit request =>
 
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("id")) {
       Future(Ok("No id parameter in query"))
-    }
-    else {
+    } else {
       val payments = paymentRepository.getByIdOption(params("id").toLong)
       payments.map(payment => payment match {
         case Some(p) => Ok(Json.toJson(p))
@@ -69,12 +64,11 @@ class ApiPaymentController @Inject()(paymentRepository: PaymentRepository, cc: M
   }
 
   def update = Action.async { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("id")) {
       Future(Ok("No id parameter in query"))
-    }
-    else {
+    } else {
 
       try {
         val id = params("id").toLong
@@ -91,8 +85,7 @@ class ApiPaymentController @Inject()(paymentRepository: PaymentRepository, cc: M
           }
           case None => Ok("No object with such id")
         })
-      }
-      catch {
+      } catch {
         case e: NumberFormatException => Future(Ok("Id has to be integer"))
       }
 
@@ -100,17 +93,15 @@ class ApiPaymentController @Inject()(paymentRepository: PaymentRepository, cc: M
   }
 
   def delete = Action { implicit request =>
-    val params = request.queryString.map { case (k,v) => k -> v.mkString }
+    val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("id")) {
       Ok("No id parameter in query")
-    }
-    else {
+    } else {
       try {
         paymentRepository.delete(params("id").toLong)
         Ok("Payment deleted!")
-      }
-      catch {
+      } catch {
         case e: NumberFormatException => Ok("Id has to be integer")
       }
     }

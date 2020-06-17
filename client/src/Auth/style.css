@@ -1,0 +1,44 @@
+.login-form {
+    width: 400px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+}
+
+.login-form-button, .register-form-button {
+    width: 100%;
+}
+
+.loginView {
+    height: 100vh;
+    padding-top: 64px;
+    background-color: white;
+}
+
+.registrationView {
+    height: 100vh;
+    padding-top: 64px;
+    background-color: white;
+}
+
+.register-form {
+    width: 400px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+}
+
+.google-icon {
+    font-size: 50px;
+    color: #DB4437;
+    margin-right: 30px;
+}
+
+.facebook-icon {
+    font-size: 50px;
+    color: #3B5998;
+}

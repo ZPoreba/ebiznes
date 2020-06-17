@@ -51,7 +51,7 @@ class OrderModal extends Component {
             products: products,
         }, () => {
 
-            let products = this.state.products;
+            products = this.state.products;
 
             let content = products[id].value;
             let productId = products[id].id;

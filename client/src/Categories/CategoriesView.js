@@ -4,6 +4,7 @@ import "antd/dist/antd.css";
 import { Card, Spin } from "antd";
 import { categoriesService } from './CategoriesService';
 import { withRouter } from 'react-router-dom';
+import {commonService} from "../Common/CommonService";
 
 
 class CategoriesView extends Component {
@@ -18,12 +19,19 @@ class CategoriesView extends Component {
     }
 
     componentDidMount() {
-        this.loadCategories();
+        commonService.checkIfAuthenticated(this.props).then(result => {
+            if(result) this.loadCategories();
+        });
     }
 
     loadCategories = () => {
         categoriesService.getCategories().then((resp) => {
-            this.setState({categories: resp, loading: false})
+            if (resp.success === false) {
+                this.setState({loading: false})
+            }
+            else {
+                this.setState({categories: resp, loading: false})
+            }
         });
     }
 

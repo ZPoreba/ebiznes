@@ -148,4 +148,35 @@ const addToWishList = (productId) => {
         });
 }
 
-export const productsService = { getProducts, getAllProducts, getOpinionsForProduct, addToBucket, addToWishList };
+const getUserById = (id) => {
+    let url = `${API_URL}/user`;
+
+    const userQs = {
+        id: id
+    };
+
+    const fetchData = {
+        method: 'GET',
+        mode: "cors",
+        headers: new Headers(),
+        redirect: 'follow'
+    };
+
+    let esc = encodeURIComponent;
+    let query = Object.keys(userQs)
+        .map(k => esc(k) + '=' + esc(userQs[k]))
+        .join('&');
+
+    url = url + "?" + query;
+
+    return fetch(url, fetchData)
+        .then(response => checkStatus(response))
+        .then(response => response.text())
+        .then(response => JSON.parse(response))
+        .catch(error => {
+            return {success: false, status: error.message}
+        });
+}
+
+export const productsService = { getProducts, getAllProducts, getOpinionsForProduct, addToBucket, addToWishList,
+                                getUserById };

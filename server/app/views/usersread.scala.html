@@ -1,14 +1,13 @@
-@(users: Seq[User])
+@(users: Seq[ApiUser])
 <ul>
   @for(user <- users) {
     <li>
-      <strong>@user.firstName @user.secondName</strong>
+      <strong>@user.firstName @user.lastName</strong>
       @user.id
       @user.email
       @user.address
 
-      <a href="@controllers.routes.UserController.update(user.id)">Edit</a>
-      <a href="@controllers.routes.UserController.delete(user.id)">Delete</a>
+      <a href="@controllers.routes.UserController.delete(user.id.toString)">Delete</a>
     </li>
 
   }

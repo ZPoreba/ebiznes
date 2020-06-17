@@ -1,29 +1,27 @@
 package controllers
 
 import javax.inject._
-import models.{Category, CategoryRepository, ProductCategoryRepository}
+import models.{ Category, CategoryRepository, ProductCategoryRepository }
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.data.Forms._
 import play.api.mvc._
 import play.filters.csrf.CSRF
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ Await, ExecutionContext, Future }
 
 @Singleton
-class CategoryController @Inject()(categoryRepository: CategoryRepository, productCategoryRepository: ProductCategoryRepository, cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
+class CategoryController @Inject() (categoryRepository: CategoryRepository, productCategoryRepository: ProductCategoryRepository, cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
 
   val categoryForm: Form[CreateCategoryForm] = Form {
     mapping(
-      "name" -> nonEmptyText
-    )(CreateCategoryForm.apply)(CreateCategoryForm.unapply)
+      "name" -> nonEmptyText)(CreateCategoryForm.apply)(CreateCategoryForm.unapply)
   }
 
   val updateForm: Form[UpdateCategoryForm] = Form {
     mapping(
       "id" -> longNumber,
-      "name" -> nonEmptyText
-    )(UpdateCategoryForm.apply)(UpdateCategoryForm.unapply)
+      "name" -> nonEmptyText)(UpdateCategoryForm.apply)(UpdateCategoryForm.unapply)
   }
 
   def create: Action[AnyContent] = Action { implicit request =>
@@ -35,15 +33,13 @@ class CategoryController @Inject()(categoryRepository: CategoryRepository, produ
     categoryForm.bindFromRequest.fold(
       errorForm => {
         Future.successful(
-          BadRequest(views.html.categoryadd(errorForm))
-        )
+          BadRequest(views.html.categoryadd(errorForm)))
       },
       product => {
         categoryRepository.create(product.name).map { _ =>
           Redirect(routes.CategoryController.create()).flashing("success" -> "category.created")
         }
-      }
-    )
+      })
   }
 
   def readById(id: Long): Action[AnyContent] = Action.async { implicit request =>
@@ -72,15 +68,13 @@ class CategoryController @Inject()(categoryRepository: CategoryRepository, produ
     updateForm.bindFromRequest.fold(
       errorForm => {
         Future.successful(
-          BadRequest(views.html.categoryupdate(errorForm))
-        )
+          BadRequest(views.html.categoryupdate(errorForm)))
       },
       category => {
         categoryRepository.update(category.id, Category(category.id, category.name)).map { _ =>
           Redirect(routes.CategoryController.update(category.id)).flashing("success" -> "category updated")
         }
-      }
-    )
+      })
 
   }
 

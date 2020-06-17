@@ -3,7 +3,8 @@ import './style.css';
 import "antd/dist/antd.css";
 import {Button, List, Spin} from "antd";
 import {returnsService} from './ReturnsService';
-import {productsService} from "../Products/ProductsService";
+import {withRouter} from "react-router-dom";
+import {commonService} from "../Common/CommonService";
 
 
 class ReturnsView extends Component {
@@ -18,7 +19,9 @@ class ReturnsView extends Component {
     }
 
     componentDidMount() {
-        this.loadProducts();
+        commonService.checkIfAuthenticated(this.props).then(result => {
+            if(result) this.loadProducts();
+        });
     }
 
     loadProducts = () => {
@@ -51,12 +54,6 @@ class ReturnsView extends Component {
         returnsService.deleteReturn(returnId).then((resp) => {
             alert(resp);
             this.setState({products: newProducts});
-        });
-    }
-
-    addToBucket = (productId) => {
-        productsService.addToBucket(productId).then((resp) => {
-            alert(resp);
         });
     }
 
@@ -107,4 +104,4 @@ class ReturnsView extends Component {
     }
 }
 
-export default ReturnsView;
+export default withRouter(ReturnsView);

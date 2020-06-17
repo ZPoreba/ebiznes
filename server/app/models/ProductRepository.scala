@@ -12,9 +12,7 @@ class ProductRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(imp
   import dbConfig._
   import profile.api._
 
-
   class ProductTable(tag: Tag) extends Table[Product](tag, "product") {
-
 
     def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
     def name = column[String]("name")
@@ -30,10 +28,11 @@ class ProductRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(imp
     db.run {
       (product.map(p => (p.name, p.description, p.price))
         returning product.map(_.id)
-        into {case ((name,description, price),id) => {
-        Product(id, name, description, price)
-      }}
-        ) += (name, description, price)
+        into {
+          case ((name, description, price), id) => {
+            Product(id, name, description, price)
+          }
+        }) += (name, description, price)
     }
       .map(res => res.id)
   }

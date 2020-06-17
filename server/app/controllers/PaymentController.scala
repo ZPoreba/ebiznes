@@ -3,7 +3,7 @@ package controllers
 import java.text.SimpleDateFormat
 
 import javax.inject._
-import models.{Payment, PaymentRepository}
+import models.{ Payment, PaymentRepository }
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.data.Forms._
@@ -11,28 +11,25 @@ import play.api.mvc._
 import play.filters.csrf.CSRF
 
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
-
+import scala.concurrent.{ Await, ExecutionContext, Future }
 
 @Singleton
-class PaymentController @Inject()(paymentRepository: PaymentRepository, cc: MessagesControllerComponents) (implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
+class PaymentController @Inject() (paymentRepository: PaymentRepository, cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
 
   val createForm: Form[CreatePaymentForm] = Form {
     mapping(
       "date" -> nonEmptyText,
-      "status" -> nonEmptyText
-    )(CreatePaymentForm.apply)(CreatePaymentForm.unapply)
+      "status" -> nonEmptyText)(CreatePaymentForm.apply)(CreatePaymentForm.unapply)
   }
 
   val updateForm: Form[UpdatePaymentForm] = Form {
     mapping(
       "id" -> longNumber,
       "date" -> nonEmptyText,
-      "status" -> nonEmptyText
-    )(UpdatePaymentForm.apply)(UpdatePaymentForm.unapply)
+      "status" -> nonEmptyText)(UpdatePaymentForm.apply)(UpdatePaymentForm.unapply)
   }
 
-  def stringToDate(date:String, format:String = "yyyy-MM-dd"):java.sql.Date = {
+  def stringToDate(date: String, format: String = "yyyy-MM-dd"): java.sql.Date = {
     import java.text._
     val sdf = new SimpleDateFormat(format)
     val utilDate = sdf.parse(date)
@@ -48,15 +45,13 @@ class PaymentController @Inject()(paymentRepository: PaymentRepository, cc: Mess
     createForm.bindFromRequest.fold(
       errorForm => {
         Future.successful(
-          BadRequest(views.html.paymentadd(errorForm))
-        )
+          BadRequest(views.html.paymentadd(errorForm)))
       },
       payment => {
         paymentRepository.create(stringToDate(payment.date), payment.status).map { _ =>
           Redirect(routes.PaymentController.create()).flashing("success" -> "payment.created")
         }
-      }
-    )
+      })
   }
 
   def read: Action[AnyContent] = Action { implicit request =>
@@ -85,15 +80,13 @@ class PaymentController @Inject()(paymentRepository: PaymentRepository, cc: Mess
     updateForm.bindFromRequest.fold(
       errorForm => {
         Future.successful(
-          BadRequest(views.html.paymentupdate(errorForm))
-        )
+          BadRequest(views.html.paymentupdate(errorForm)))
       },
       payment => {
         paymentRepository.update(payment.id, Payment(payment.id, stringToDate(payment.date), payment.status)).map { _ =>
           Redirect(routes.PaymentController.update(payment.id)).flashing("success" -> "payment updated")
         }
-      }
-    )
+      })
 
   }
 

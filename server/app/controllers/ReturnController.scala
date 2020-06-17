@@ -1,7 +1,7 @@
 package controllers
 
 import javax.inject._
-import models.{ProductRepository, Return, ReturnRepository, User, UserRepository, Product}
+import models.{ApiUser, Product, ProductRepository, Return, ReturnRepository, User, UserRepository}
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.data.Forms._
@@ -22,7 +22,7 @@ class ReturnController @Inject()(returnRepository: ReturnRepository,
 
   val createForm: Form[CreateReturnForm] = Form {
     mapping(
-      "userId" -> longNumber,
+      "userId" -> nonEmptyText,
       "productId" -> longNumber,
       "status" -> nonEmptyText,
     )(CreateReturnForm.apply)(CreateReturnForm.unapply)
@@ -31,7 +31,7 @@ class ReturnController @Inject()(returnRepository: ReturnRepository,
   val updateForm: Form[UpdateReturnForm] = Form {
     mapping(
       "id" -> longNumber,
-      "userId" -> longNumber,
+      "userId" -> nonEmptyText,
       "productId" -> longNumber,
       "status" -> nonEmptyText,
     )(UpdateReturnForm.apply)(UpdateReturnForm.unapply)
@@ -89,7 +89,7 @@ class ReturnController @Inject()(returnRepository: ReturnRepository,
 
   def updateHandle = Action.async { implicit request =>
 
-    var usr:Seq[User] = Seq[User]()
+    var usr:Seq[ApiUser] = Seq[ApiUser]()
     val users = userRepository.list().onComplete{
       case Success(u) => usr = u
       case Failure(_) => print("fail")
@@ -126,5 +126,5 @@ class ReturnController @Inject()(returnRepository: ReturnRepository,
 
 }
 
-case class CreateReturnForm(userId: Long, productId: Long, status: String)
-case class UpdateReturnForm(id: Long, userId: Long, productId: Long, status: String)
+case class CreateReturnForm(userId: String, productId: Long, status: String)
+case class UpdateReturnForm(id: Long, userId: String, productId: Long, status: String)
