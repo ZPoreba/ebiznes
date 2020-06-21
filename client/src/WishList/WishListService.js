@@ -7,19 +7,21 @@ const checkStatus = (response) => {
     return response;
 }
 
+const fetchData = (method) => {
+    return {
+        method: method,
+        mode: "cors",
+        redirect: 'follow',
+        credentials: 'include'
+    }
+}
+
 const getWishListProducts = () => {
     let url = `${API_URL}/wishlist`;
     let user = JSON.parse(localStorage.getItem('user'));
 
     const wishlistQs = {
         id: user.user_id
-    };
-
-    const fetchData = {
-        method: 'GET',
-        mode: "cors",
-        redirect: 'follow',
-        credentials: 'include'
     };
 
     let esc = encodeURIComponent;
@@ -29,7 +31,7 @@ const getWishListProducts = () => {
 
     url = url + "?" + query;
 
-    return fetch(url, fetchData)
+    return fetch(url, fetchData('GET'))
         .then(response => checkStatus(response))
         .then(response => response.text())
         .then(response => JSON.parse(response))
@@ -45,13 +47,6 @@ const getProductById = (productId) => {
         id: productId
     };
 
-    const fetchData = {
-        method: 'GET',
-        mode: "cors",
-        redirect: 'follow',
-        credentials: 'include'
-    };
-
     let esc = encodeURIComponent;
     let query = Object.keys(productQs)
         .map(k => esc(k) + '=' + esc(productQs[k]))
@@ -59,7 +54,7 @@ const getProductById = (productId) => {
 
     url = url + "?" + query;
 
-    return fetch(url, fetchData)
+    return fetch(url, fetchData('GET'))
         .then(response => checkStatus(response))
         .then(response => response.text())
         .then(response => JSON.parse(response))
@@ -77,13 +72,6 @@ const deleteProductForUser = (productId) => {
         userId: user.user_id
     };
 
-    const fetchData = {
-        method: 'DELETE',
-        mode: "cors",
-        redirect: 'follow',
-        credentials: 'include'
-    };
-
     let esc = encodeURIComponent;
     let query = Object.keys(productQs)
         .map(k => esc(k) + '=' + esc(productQs[k]))
@@ -91,7 +79,7 @@ const deleteProductForUser = (productId) => {
 
     url = url + "?" + query;
 
-    return fetch(url, fetchData)
+    return fetch(url, fetchData('DELETE'))
         .then(response => checkStatus(response))
         .then(response => response.text())
         .catch(error => {

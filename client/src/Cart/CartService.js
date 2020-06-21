@@ -9,19 +9,21 @@ const checkStatus = (response) => {
     return response;
 }
 
+const fetchData = (method) => {
+    return {
+        method: method,
+        mode: "cors",
+        redirect: 'follow',
+        credentials: 'include'
+    }
+}
+
 const getBucketProducts = () => {
     let url = `${API_URL}/cart`;
     let user = JSON.parse(localStorage.getItem('user'));
 
     const cartQs = {
         id: user.user_id
-    };
-
-    const fetchData = {
-        method: 'GET',
-        mode: "cors",
-        redirect: 'follow',
-        credentials: 'include'
     };
 
     let esc = encodeURIComponent;
@@ -31,7 +33,7 @@ const getBucketProducts = () => {
 
     url = url + "?" + query;
 
-    return fetch(url, fetchData)
+    return fetch(url, fetchData('GET'))
         .then(response => checkStatus(response))
         .then(response => response.text())
         .then(response => JSON.parse(response))
@@ -47,13 +49,6 @@ const getProductById = (productId) => {
         id: productId
     };
 
-    const fetchData = {
-        method: 'GET',
-        mode: "cors",
-        redirect: 'follow',
-        credentials: 'include'
-    };
-
     let esc = encodeURIComponent;
     let query = Object.keys(productQs)
         .map(k => esc(k) + '=' + esc(productQs[k]))
@@ -61,7 +56,7 @@ const getProductById = (productId) => {
 
     url = url + "?" + query;
 
-    return fetch(url, fetchData)
+    return fetch(url, fetchData('GET'))
         .then(response => checkStatus(response))
         .then(response => response.text())
         .then(response => JSON.parse(response))
@@ -79,13 +74,6 @@ const deleteProductForUser = (productId) => {
         userId: user.user_id
     };
 
-    const fetchData = {
-        method: 'DELETE',
-        mode: "cors",
-        redirect: 'follow',
-        credentials: 'include'
-    };
-
     let esc = encodeURIComponent;
     let query = Object.keys(productQs)
         .map(k => esc(k) + '=' + esc(productQs[k]))
@@ -93,7 +81,7 @@ const deleteProductForUser = (productId) => {
 
     url = url + "?" + query;
 
-    return fetch(url, fetchData)
+    return fetch(url, fetchData('DELETE'))
         .then(response => checkStatus(response))
         .then(response => response.text())
         .catch(error => {
@@ -110,13 +98,6 @@ const createPayment = () => {
         status: 'done'
     };
 
-    const fetchData = {
-        method: 'POST',
-        mode: "cors",
-        redirect: 'follow',
-        credentials: 'include'
-    };
-
     let esc = encodeURIComponent;
     let query = Object.keys(productQs)
         .map(k => esc(k) + '=' + esc(productQs[k]))
@@ -124,7 +105,7 @@ const createPayment = () => {
 
     url = url + "?" + query;
 
-    return fetch(url, fetchData)
+    return fetch(url, fetchData('POST'))
         .then(response => checkStatus(response))
         .then(response => response.text())
         .then(response => JSON.parse(response))
@@ -137,13 +118,6 @@ const createOrder = (orderData) => {
     let url = `${API_URL}/order`;
     const orderQs = orderData;
 
-    const fetchData = {
-        method: 'POST',
-        mode: "cors",
-        redirect: 'follow',
-        credentials: 'include'
-    };
-
     let esc = encodeURIComponent;
     let query = Object.keys(orderQs)
         .map(k => esc(k) + '=' + esc(orderQs[k]))
@@ -151,7 +125,7 @@ const createOrder = (orderData) => {
 
     url = url + "?" + query;
 
-    return fetch(url, fetchData)
+    return fetch(url, fetchData('POST'))
         .then(response => checkStatus(response))
         .then(response => response.text())
         .catch(error => {
@@ -167,13 +141,6 @@ const deleteCart = () => {
         userId: user.user_id
     };
 
-    const fetchData = {
-        method: 'DELETE',
-        mode: "cors",
-        redirect: 'follow',
-        credentials: 'include'
-    };
-
     let esc = encodeURIComponent;
     let query = Object.keys(cartQs)
         .map(k => esc(k) + '=' + esc(cartQs[k]))
@@ -181,7 +148,7 @@ const deleteCart = () => {
 
     url = url + "?" + query;
 
-    return fetch(url, fetchData)
+    return fetch(url, fetchData('DELETE'))
         .then(response => checkStatus(response))
         .then(response => response.text())
         .catch(error => {
@@ -197,13 +164,6 @@ const checkDiscountCode = (code, products) => {
         products: products
     };
 
-    const fetchData = {
-        method: 'GET',
-        mode: "cors",
-        redirect: 'follow',
-        credentials: 'include'
-    };
-
     let esc = encodeURIComponent;
     let query = Object.keys(codeQs)
         .map(k => esc(k) + '=' + esc(codeQs[k]))
@@ -211,7 +171,7 @@ const checkDiscountCode = (code, products) => {
 
     url = url + "?" + query;
 
-    return fetch(url, fetchData)
+    return fetch(url, fetchData('GET'))
         .then(response => checkStatus(response))
         .then(response => response.text())
         .then(response => JSON.parse(response))

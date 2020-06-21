@@ -7,19 +7,21 @@ const checkStatus = (response) => {
     return response;
 }
 
+const fetchData = (method) => {
+    return {
+        method: method,
+        mode: "cors",
+        redirect: 'follow',
+        credentials: 'include'
+    }
+}
+
 const getOrdersForUser = () => {
     let url = `${API_URL}/ordersForUser`;
     let user = JSON.parse(localStorage.getItem('user'));
 
     const ordersQs = {
         userId: user.user_id
-    };
-
-    const fetchData = {
-        method: 'GET',
-        mode: "cors",
-        redirect: 'follow',
-        credentials: 'include'
     };
 
     let esc = encodeURIComponent;
@@ -29,7 +31,7 @@ const getOrdersForUser = () => {
 
     url = url + "?" + query;
 
-    return fetch(url, fetchData)
+    return fetch(url, fetchData('GET'))
         .then(response => checkStatus(response))
         .then(response => response.text())
         .then(response => JSON.parse(response))
@@ -45,13 +47,6 @@ const getOrderById = (orderId) => {
         id: orderId
     };
 
-    const fetchData = {
-        method: 'GET',
-        mode: "cors",
-        redirect: 'follow',
-        credentials: 'include'
-    };
-
     let esc = encodeURIComponent;
     let query = Object.keys(orderQs)
         .map(k => esc(k) + '=' + esc(orderQs[k]))
@@ -59,7 +54,7 @@ const getOrderById = (orderId) => {
 
     url = url + "?" + query;
 
-    return fetch(url, fetchData)
+    return fetch(url, fetchData('GET'))
         .then(response => checkStatus(response))
         .then(response => response.text())
         .then(response => JSON.parse(response))
@@ -75,13 +70,6 @@ const getProductById = (productId) => {
         id: productId
     };
 
-    const fetchData = {
-        method: 'GET',
-        mode: "cors",
-        redirect: 'follow',
-        credentials: 'include'
-    };
-
     let esc = encodeURIComponent;
     let query = Object.keys(productQs)
         .map(k => esc(k) + '=' + esc(productQs[k]))
@@ -89,7 +77,7 @@ const getProductById = (productId) => {
 
     url = url + "?" + query;
 
-    return fetch(url, fetchData)
+    return fetch(url, fetchData('GET'))
         .then(response => checkStatus(response))
         .then(response => response.text())
         .then(response => JSON.parse(response))
@@ -108,13 +96,6 @@ const createReturn = (productId) => {
         status: 'pending'
     };
 
-    const fetchData = {
-        method: 'POST',
-        mode: "cors",
-        redirect: 'follow',
-        credentials: 'include'
-    };
-
     let esc = encodeURIComponent;
     let query = Object.keys(returnQs)
         .map(k => esc(k) + '=' + esc(returnQs[k]))
@@ -122,7 +103,7 @@ const createReturn = (productId) => {
 
     url = url + "?" + query;
 
-    return fetch(url, fetchData)
+    return fetch(url, fetchData('POST'))
         .then(response => checkStatus(response))
         .then(response => response.text())
         .catch(error => {
@@ -140,13 +121,6 @@ const createOpinion = (content, productId) => {
         content: content
     };
 
-    const fetchData = {
-        method: 'POST',
-        mode: "cors",
-        redirect: 'follow',
-        credentials: 'include'
-    };
-
     let esc = encodeURIComponent;
     let query = Object.keys(opinionQs)
         .map(k => esc(k) + '=' + esc(opinionQs[k]))
@@ -154,7 +128,7 @@ const createOpinion = (content, productId) => {
 
     url = url + "?" + query;
 
-    return fetch(url, fetchData)
+    return fetch(url, fetchData('POST'))
         .then(response => checkStatus(response))
         .then(response => response.text())
         .catch(error => {

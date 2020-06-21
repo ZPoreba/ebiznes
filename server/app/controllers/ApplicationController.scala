@@ -15,7 +15,7 @@ class ApplicationController @Inject() (scc: SilhouetteControllerComponents)(impl
     val token = CSRF.getToken.get.value
     Ok(token)
   }
-  
+
   def index = Action { implicit request =>
     Ok(views.html.index())
   }

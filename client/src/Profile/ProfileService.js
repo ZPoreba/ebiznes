@@ -7,19 +7,21 @@ const checkStatus = (response) => {
     return response;
 }
 
+const fetchData = (method) => {
+    return {
+        method: method,
+        mode: "cors",
+        redirect: 'follow',
+        credentials: 'include'
+    }
+}
+
 const getUserData = () => {
     let url = `${API_URL}/user`;
     let user = JSON.parse(localStorage.getItem('user'));
 
     const userQs = {
         id: user.user_id
-    };
-
-    const fetchData = {
-        method: 'GET',
-        mode: "cors",
-        redirect: 'follow',
-        credentials: 'include'
     };
 
     let esc = encodeURIComponent;
@@ -29,7 +31,7 @@ const getUserData = () => {
 
     url = url + "?" + query;
 
-    return fetch(url, fetchData)
+    return fetch(url, fetchData('GET'))
         .then(response => checkStatus(response))
         .then(response => response.text())
         .then(response => JSON.parse(response))
@@ -49,13 +51,6 @@ const putUserData = (data) => {
         address: data.address
     };
 
-    const fetchData = {
-        method: 'PUT',
-        mode: "cors",
-        redirect: 'follow',
-        credentials: 'include'
-    };
-
     let esc = encodeURIComponent;
     let query = Object.keys(userQs)
         .map(k => esc(k) + '=' + esc(userQs[k]))
@@ -63,7 +58,7 @@ const putUserData = (data) => {
 
     url = url + "?" + query;
 
-    return fetch(url, fetchData)
+    return fetch(url, fetchData('PUT'))
         .then(response => checkStatus(response))
         .then(response => response.text())
         .catch(error => {

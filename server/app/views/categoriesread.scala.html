@@ -1,8 +1,9 @@
 @(categories: Seq[Category])
 
+<ul>
   @for(category <- categories) {
     <li>
-      <b>@category.name</b>
+      <strong>@category.name</strong>
       @category.id
 
       <a href="@controllers.routes.CategoryController.update(category.id)">Edit</a>
@@ -10,5 +11,5 @@
     </li>
 
   }
-
+</ul>
 

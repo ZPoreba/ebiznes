@@ -1,14 +1,15 @@
 @(orders: Seq[Order], product: List[Seq[(Long, String, Long, String, Long)]] )
 @import java.math.BigInteger; var i=0
 
+<ul>
   @for(order <- orders) {
     <li>
-      <b>@order.id</b>
+      <strong>@order.id</strong>
       @order.userId
       @order.paymentId
       @order.status
 
-      <b>products: </b>
+      <strong>products: </strong>
       @for(p <- product(i)) {
         @p._5
       }
@@ -18,5 +19,5 @@
     </li>
   @(i+=1)
   }
-
+</ul>
 

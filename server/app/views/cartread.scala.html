@@ -1,8 +1,8 @@
 @(cart: ApiUser, product: Seq[(String, Long)])
 
-<b>@cart.id</b>
+<strong>@cart.id</strong>
 
-<b>products: </b>
+<strong>products: </strong>
 
   @for(prod <- product){
     @prod._2

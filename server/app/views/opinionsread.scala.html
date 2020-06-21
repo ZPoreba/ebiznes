@@ -1,8 +1,9 @@
 @(opinions: Seq[Opinion])
 
+<ul>
   @for(opinion <- opinions) {
     <li>
-      <b>@opinion.id</b>
+      <strong>@opinion.id</strong>
       @opinion.userId
       @opinion.productId
       @opinion.content
@@ -12,5 +13,5 @@
     </li>
 
   }
-
+</ul>
 

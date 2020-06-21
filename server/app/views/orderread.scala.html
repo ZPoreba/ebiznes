@@ -1,10 +1,10 @@
 @(order: Order, product: Seq[(Long, String, Long, String, Long)])
 
-<b>@order.id</b>
+<strong>@order.id</strong>
   @order.userId
   @order.paymentId
   @order.status
-<b>products: </b>
+<strong>products: </strong>
 
 @for(prod <- product){
   @prod._5

@@ -7,18 +7,20 @@ const checkStatus = (response) => {
     return response;
 }
 
+const fetchData = (method) => {
+    return {
+                method: method,
+                mode: "cors",
+                redirect: 'follow',
+                credentials: 'include'
+            }
+}
+
 const getProducts = (categoryId) => {
     let url = `${API_URL}/productFromCategory`;
 
     const productsQs = {
         categoryId: categoryId
-    };
-
-    const fetchData = {
-        method: 'GET',
-        mode: "cors",
-        redirect: 'follow',
-        credentials: 'include'
     };
 
     let esc = encodeURIComponent;
@@ -28,7 +30,7 @@ const getProducts = (categoryId) => {
 
     url = url + "?" + query;
 
-    return fetch(url, fetchData)
+    return fetch(url, fetchData('GET'))
         .then(response => checkStatus(response))
         .then(response => response.text())
         .then(response => JSON.parse(response))
@@ -40,14 +42,7 @@ const getProducts = (categoryId) => {
 const getAllProducts = () => {
     let url = `${API_URL}/products`;
 
-    const fetchData = {
-        method: 'GET',
-        mode: "cors",
-        redirect: 'follow',
-        credentials: 'include'
-    };
-
-    return fetch(url, fetchData)
+    return fetch(url, fetchData('GET'))
         .then(response => checkStatus(response))
         .then(response => response.text())
         .then(response => JSON.parse(response))
@@ -63,13 +58,6 @@ const getOpinionsForProduct = (productId) => {
         productId: productId
     };
 
-    const fetchData = {
-        method: 'GET',
-        mode: "cors",
-        redirect: 'follow',
-        credentials: 'include'
-    };
-
     let esc = encodeURIComponent;
     let query = Object.keys(productsQs)
         .map(k => esc(k) + '=' + esc(productsQs[k]))
@@ -77,7 +65,7 @@ const getOpinionsForProduct = (productId) => {
 
     url = url + "?" + query;
 
-    return fetch(url, fetchData)
+    return fetch(url, fetchData('GET'))
         .then(response => checkStatus(response))
         .then(response => response.text())
         .then(response => JSON.parse(response))
@@ -95,13 +83,6 @@ const addToBucket = (productId) => {
         products: productId
     };
 
-    const fetchData = {
-        method: 'POST',
-        mode: "cors",
-        redirect: 'follow',
-        credentials: 'include'
-    };
-
     let esc = encodeURIComponent;
     let query = Object.keys(productsQs)
         .map(k => esc(k) + '=' + esc(productsQs[k]))
@@ -109,7 +90,7 @@ const addToBucket = (productId) => {
 
     url = url + "?" + query;
 
-    return fetch(url, fetchData)
+    return fetch(url, fetchData('POST'))
         .then(response => checkStatus(response))
         .then(response => response.text())
         .catch(error => {
@@ -126,13 +107,6 @@ const addToWishList = (productId) => {
         products: productId
     };
 
-    const fetchData = {
-        method: 'POST',
-        mode: "cors",
-        redirect: 'follow',
-        credentials: 'include'
-    };
-
     let esc = encodeURIComponent;
     let query = Object.keys(productsQs)
         .map(k => esc(k) + '=' + esc(productsQs[k]))
@@ -140,7 +114,7 @@ const addToWishList = (productId) => {
 
     url = url + "?" + query;
 
-    return fetch(url, fetchData)
+    return fetch(url, fetchData('POST'))
         .then(response => checkStatus(response))
         .then(response => response.text())
         .catch(error => {
@@ -155,13 +129,6 @@ const getUserById = (id) => {
         id: id
     };
 
-    const fetchData = {
-        method: 'GET',
-        mode: "cors",
-        redirect: 'follow',
-        credentials: 'include'
-    };
-
     let esc = encodeURIComponent;
     let query = Object.keys(userQs)
         .map(k => esc(k) + '=' + esc(userQs[k]))
@@ -169,7 +136,7 @@ const getUserById = (id) => {
 
     url = url + "?" + query;
 
-    return fetch(url, fetchData)
+    return fetch(url, fetchData('GET'))
         .then(response => checkStatus(response))
         .then(response => response.text())
         .then(response => JSON.parse(response))

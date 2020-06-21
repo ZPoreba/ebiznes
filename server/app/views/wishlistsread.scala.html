@@ -1,19 +1,19 @@
 @(wishlists: Seq[ApiUser], product: List[Seq[(String, Long)]])
 @import java.math.BigInteger; var i=0
 
+<ul>
+  @for(wishlist <- wishlists) {
+    <li>
+      <strong>@wishlist.id</strong>
+      <strong>products: </strong>
+      @for(p <- product(i)) {
+        @p._2
+      }
 
-@for(wishlist <- wishlists) {
-  <li>
-    <b>@wishlist.id</b>
-    <b>products: </b>
-    @for(p <- product(i)) {
-      @p._2
-    }
-
-    <a href="@controllers.routes.WishListController.delete(wishlist.id.toString)">Delete</a>
-  </li>
-  @(i+=1)
-}
-
+      <a href="@controllers.routes.WishListController.delete(wishlist.id.toString)">Delete</a>
+    </li>
+    @(i+=1)
+  }
+</ul>
 
 
