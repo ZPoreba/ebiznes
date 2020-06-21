@@ -6,10 +6,8 @@ import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.data.Forms._
 import play.api.mvc._
-import play.filters.csrf.CSRF
-
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext}
 
 
 @Singleton

@@ -1,13 +1,11 @@
 package controllers
 
 import javax.inject._
-import models.{ ApiUser, Order, OrderProduct, OrderProductRepository, OrderRepository, Payment, PaymentRepository, Product, ProductRepository, User, UserRepository }
+import models.{ ApiUser, Order, OrderProductRepository, OrderRepository, Payment, PaymentRepository, Product, ProductRepository, UserRepository }
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.data.Forms._
 import play.api.mvc._
-import play.filters.csrf.CSRF
-
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, ExecutionContext, Future }
@@ -41,7 +39,7 @@ class OrderController @Inject() (
   }
 
   def create: Action[AnyContent] = Action { implicit request =>
-    var prod = Await.result(productRepository.list(), Duration.Inf)
+    val prod = Await.result(productRepository.list(), Duration.Inf)
     var prod_list = new ListBuffer[(String, String)]()
     for (p <- prod) {
       prod_list.+=((p.id.toString, p.name))

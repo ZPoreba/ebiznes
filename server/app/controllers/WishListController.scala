@@ -5,11 +5,9 @@ import models.{Product, ProductRepository, UserRepository, WishListProductReposi
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc._
-import play.filters.csrf.CSRF
-
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext}
 import scala.util.{Failure, Success}
 
 
@@ -49,7 +47,7 @@ class WishListController @Inject()(wishListProductRepository: WishListProductRep
   }
 
   def createHandle = Action { implicit request =>
-    var usr = Await.result(userRepository.list(), Duration.Inf)
+    val usr = Await.result(userRepository.list(), Duration.Inf)
 
     var produ:Seq[Product] = Seq[Product]()
     val products = productRepository.list().onComplete{

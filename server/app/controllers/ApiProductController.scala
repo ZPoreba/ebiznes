@@ -5,13 +5,13 @@ import models._
 import play.api.libs.json._
 import play.api.mvc._
 import play.filters.csrf.CSRF
-
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, ExecutionContext, Future }
 
 @Singleton
 class ApiProductController @Inject() (
+  scc: SilhouetteControllerComponents,
   productRepository: ProductRepository,
   productCategoryRepository: ProductCategoryRepository,
   cartProductRepository: CartProductRepository,
@@ -20,16 +20,15 @@ class ApiProductController @Inject() (
   discountCodeRepository: DiscountCodeRepository,
   returnRepository: ReturnRepository,
   opinionRepository: OpinionRepository,
-  orderProductRepository: OrderProductRepository,
-  cc: MessagesControllerComponents)(implicit ec: ExecutionContext)
-  extends MessagesAbstractController(cc) {
+  orderProductRepository: OrderProductRepository)(implicit ec: ExecutionContext)
+  extends SilhouetteController(scc) {
 
   def getToken = Action { implicit request =>
     val token = CSRF.getToken.get.value
     Ok(token)
   }
 
-  def create: Action[AnyContent] = Action.async { implicit request =>
+  def create: Action[AnyContent] = SecuredAction.async { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("name")) {
       Future(Ok("No name parameter in query"))
@@ -57,12 +56,12 @@ class ApiProductController @Inject() (
     }
   }
 
-  def read: Action[AnyContent] = Action { implicit request =>
+  def read: Action[AnyContent] = SecuredAction { implicit request =>
     val products = Await.result(productRepository.list(), Duration.Inf)
     Ok(Json.toJson(products))
   }
 
-  def readById: Action[AnyContent] = Action { implicit request =>
+  def readById: Action[AnyContent] = SecuredAction { implicit request =>
 
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("id")) {
@@ -82,7 +81,7 @@ class ApiProductController @Inject() (
 
   }
 
-  def readByCategoryId: Action[AnyContent] = Action { implicit request =>
+  def readByCategoryId: Action[AnyContent] = SecuredAction { implicit request =>
 
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("categoryId")) {
@@ -103,7 +102,7 @@ class ApiProductController @Inject() (
 
   }
 
-  def update = Action.async { implicit request =>
+  def update = SecuredAction.async { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("id")) {
@@ -146,7 +145,7 @@ class ApiProductController @Inject() (
     }
   }
 
-  def delete = Action { implicit request =>
+  def delete = SecuredAction { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("id")) {

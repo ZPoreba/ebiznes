@@ -1,15 +1,10 @@
 package controllers
 
 import javax.inject._
-import models.{ CartProductRepository, OpinionRepository, OrderRepository, User, UserRepository, WishListProductRepository }
-import play.api.data.Form
-import play.api.data.Forms.mapping
-import play.api.data.Forms._
+import models.{ CartProductRepository, OpinionRepository, OrderRepository, UserRepository, WishListProductRepository }
 import play.api.mvc._
-import play.filters.csrf.CSRF
-
 import scala.concurrent.duration.Duration
-import scala.concurrent.{ Await, ExecutionContext, Future }
+import scala.concurrent.{ Await, ExecutionContext }
 
 @Singleton
 class UserController @Inject() (

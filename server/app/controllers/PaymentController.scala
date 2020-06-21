@@ -1,15 +1,11 @@
 package controllers
 
-import java.text.SimpleDateFormat
-
 import javax.inject._
 import models.{ Payment, PaymentRepository }
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.data.Forms._
 import play.api.mvc._
-import play.filters.csrf.CSRF
-
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, ExecutionContext, Future }
 

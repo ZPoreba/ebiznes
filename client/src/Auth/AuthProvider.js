@@ -1,15 +1,12 @@
 import React, {Component} from 'react';
 import {withRouter} from "react-router-dom";
 import {loginService} from "./LoginService";
+import { Spin } from 'antd';
 
 
 const API_URL = process.env.REACT_APP_API_URL;
 
 class AuthProvider extends Component {
-
-    constructor(props) {
-        super(props);
-    }
 
     componentDidMount() {
         const fetchData = {
@@ -32,7 +29,9 @@ class AuthProvider extends Component {
     }
 
     render() {
-        return (<div />);
+        return (<Spin>
+                    <div style={{height: '100hv', width: '100wv'}}/>
+                </Spin>);
     }
 };
 

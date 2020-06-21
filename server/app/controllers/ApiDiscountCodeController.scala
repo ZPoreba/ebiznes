@@ -5,22 +5,21 @@ import models.{ DiscountCodeRepository, ProductRepository }
 import play.api.libs.json._
 import play.api.mvc._
 import play.filters.csrf.CSRF
-
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, ExecutionContext, Future }
 
 @Singleton
 class ApiDiscountCodeController @Inject() (
+  scc: SilhouetteControllerComponents,
   productRepository: ProductRepository,
-  discountCodeRepository: DiscountCodeRepository,
-  cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
+  discountCodeRepository: DiscountCodeRepository)(implicit ec: ExecutionContext) extends SilhouetteController(scc) {
 
-  def getToken = Action { implicit request =>
+  def getToken = SecuredAction { implicit request =>
     val token = CSRF.getToken.get.value
     Ok(token)
   }
 
-  def create: Action[AnyContent] = Action.async { implicit request =>
+  def create: Action[AnyContent] = SecuredAction.async { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("productId")) {
       Future(Ok("No productId parameter in query"))
@@ -41,12 +40,12 @@ class ApiDiscountCodeController @Inject() (
     }
   }
 
-  def read: Action[AnyContent] = Action { implicit request =>
+  def read: Action[AnyContent] = SecuredAction { implicit request =>
     val codes = Await.result(discountCodeRepository.list(), Duration.Inf)
     Ok(Json.toJson(codes))
   }
 
-  def readById: Action[AnyContent] = Action { implicit request =>
+  def readById: Action[AnyContent] = SecuredAction { implicit request =>
 
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("productId")) {
@@ -58,7 +57,7 @@ class ApiDiscountCodeController @Inject() (
 
   }
 
-  def checkCodeForProducts: Action[AnyContent] = Action { implicit request =>
+  def checkCodeForProducts: Action[AnyContent] = SecuredAction { implicit request =>
 
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("code")) {
@@ -82,12 +81,12 @@ class ApiDiscountCodeController @Inject() (
     }
   }
 
-  def update = Action { implicit request =>
+  def update = SecuredAction { implicit request =>
     Ok("DicountCode update not needed if we assume possibility of existence" +
       "of many discount codes to single product. ")
   }
 
-  def delete = Action { implicit request =>
+  def delete = SecuredAction { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("id")) {

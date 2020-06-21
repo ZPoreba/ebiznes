@@ -1,95 +1,67 @@
-
 # Routes
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 #Authorization
+GET         /account/security                controllers.ApplicationController.getToken
 GET         /                                controllers.ApplicationController.index
-GET         /signIn                          controllers.ApplicationController.signIn
-GET         /signUp                          controllers.ApplicationController.signUp
 GET         /signOut                         controllers.ApplicationController.signOut
 GET         /authenticate/:provider          controllers.SocialAuthController.authenticate(provider)
 +nocsrf
 POST        /authenticate/credentials        controllers.CredentialsAuthController.authenticate
-
 +nocsrf
 POST        /signUp                          controllers.SignUpController.signUp
-
-
-# An example controller showing a sample home page
-GET     /main                       controllers.HomeController.index
-# An example controller showing how to use dependency injection
-GET     /count                      controllers.CountController.count
-# An example controller showing how to write asynchronous code
-GET     /message                    controllers.AsyncController.message
 
 # Product
 GET     /readproducts               controllers.ProductController.read
 GET     /readproduct/:id            controllers.ProductController.readById(id: Long)
-
-GET    /addproduct                  controllers.ProductController.create
-POST   /addproducthandle            controllers.ProductController.createHandle
-
-GET    /updateproduct/:id           controllers.ProductController.update(id: Long)
-POST   /updateproducthandle         controllers.ProductController.updateHandle
-
-GET    /deleteproduct/:id           controllers.ProductController.delete(id: Long)
+GET     /addproduct                 controllers.ProductController.create
+POST    /addproducthandle           controllers.ProductController.createHandle
+GET     /updateproduct/:id          controllers.ProductController.update(id: Long)
+POST    /updateproducthandle        controllers.ProductController.updateHandle
+GET     /deleteproduct/:id          controllers.ProductController.delete(id: Long)
 
 # Cart
 GET     /readcarts                  controllers.CartController.read
 GET     /readcart/:id               controllers.CartController.readById(id: String)
-
 GET     /addcart                    controllers.CartController.create
 GET     /addcarthandle              controllers.CartController.createHandle
-
 GET     /updatecart                 controllers.CartController.update
 GET     /deletecart/:id             controllers.CartController.delete(id: String)
 
 # Category
 GET     /readcategories             controllers.CategoryController.read
 GET     /readcategory/:id           controllers.CategoryController.readById(id: Long)
-
 GET     /addcategory                controllers.CategoryController.create
 POST    /addcategoryhandle          controllers.CategoryController.createHandle
-
 GET     /updatecategory/:id         controllers.CategoryController.update(id: Long)
 POST    /updatecategoryhandle       controllers.CategoryController.updateHandle
-
 GET     /deletecategory/:id         controllers.CategoryController.delete(id: Long)
 
 # Opinion
 GET     /readopinions               controllers.OpinionController.read
 GET     /readopinion/:id            controllers.OpinionController.readById(id: Long)
-
 GET     /addopinion                 controllers.OpinionController.create
 POST    /addopinionhandle           controllers.OpinionController.createHandle
-
 GET     /updateopinion/:id          controllers.OpinionController.update(id: Long)
 POST    /updateopinionhandle        controllers.OpinionController.updateHandle
-
 GET     /deleteopinion/:id          controllers.OpinionController.delete(id: Long)
 
 # Order
 GET     /readorders                 controllers.OrderController.read
 GET     /readorder/:id              controllers.OrderController.readById(id: Long)
-
 GET     /addorder                   controllers.OrderController.create
 POST    /addorderhandle             controllers.OrderController.createHandle
-
 GET     /updateorder/:id            controllers.OrderController.update(id: Long)
 POST    /updateorderhandle          controllers.OrderController.updateHandle
-
 GET     /deleteorder/:id            controllers.OrderController.delete(id: Long)
 
 # Payment
 GET     /readpayments               controllers.PaymentController.read
 GET     /readpayment/:id            controllers.PaymentController.readById(id: Long)
-
 GET     /addpayment                 controllers.PaymentController.create
 POST    /addpaymenthandle           controllers.PaymentController.createHandle
-
 GET     /updatepayment/:id          controllers.PaymentController.update(id: Long)
 POST    /updatepaymenthandle        controllers.PaymentController.updateHandle
-
 GET     /deletepayment/:id          controllers.PaymentController.delete(id: Long)
 
 # User
@@ -101,50 +73,41 @@ GET     /deleteuser/:id             controllers.UserController.delete(id: String
 
 GET     /readreturns                 controllers.ReturnController.read
 GET     /readreturn/:id              controllers.ReturnController.readById(id: Long)
-
 GET     /addreturn                   controllers.ReturnController.create
 POST    /addreturnhandle             controllers.ReturnController.createHandle
-
 GET     /updatereturn/:id            controllers.ReturnController.update(id: Long)
 POST    /updatereturnhandle          controllers.ReturnController.updateHandle
-
 GET     /deletereturn/:id            controllers.ReturnController.delete(id: Long)
 
 # WishList
 
 GET     /readwishlists               controllers.WishListController.read
 GET     /readwishlist/:id            controllers.WishListController.readById(id: String)
-
 GET     /addwishlist                 controllers.WishListController.create
 POST    /addwishlisthandle           controllers.WishListController.createHandle
-
 GET     /updatewishlist              controllers.WishListController.update
-
 GET     /deletewishlist/:id          controllers.WishListController.delete(id: String)
 
 
 # DiscountCode
 
-GET     /readdiscountcodes          controllers.DiscountCodeController.read
-GET     /readdiscountcode/:id       controllers.DiscountCodeController.readById(id: Long)
+GET     /readdiscountcodes           controllers.DiscountCodeController.read
+GET     /readdiscountcode/:id        controllers.DiscountCodeController.readById(id: Long)
+GET     /adddiscountcode             controllers.DiscountCodeController.create
+POST    /adddiscountcodehandle       controllers.DiscountCodeController.createHandle
+GET     /updatediscountcode          controllers.DiscountCodeController.update
+GET     /deletediscountcode/:id      controllers.DiscountCodeController.delete(id: Long)
 
-GET     /adddiscountcode            controllers.DiscountCodeController.create
-POST    /adddiscountcodehandle      controllers.DiscountCodeController.createHandle
-
-GET     /updatediscountcode         controllers.DiscountCodeController.update
-
-GET     /deletediscountcode/:id     controllers.DiscountCodeController.delete(id: Long)
-
-#API
+## API
 
 # Product
-GET     /product/token              controllers.ApiProductController.getToken
-GET     /products                   controllers.ApiProductController.read
-POST    /product                    controllers.ApiProductController.create
-GET     /product                    controllers.ApiProductController.readById
-PUT     /product                    controllers.ApiProductController.update
-DELETE  /product                    controllers.ApiProductController.delete
-GET     /productFromCategory        controllers.ApiProductController.readByCategoryId
+GET     /product/token               controllers.ApiProductController.getToken
+GET     /products                    controllers.ApiProductController.read
+POST    /product                     controllers.ApiProductController.create
+GET     /product                     controllers.ApiProductController.readById
+PUT     /product                     controllers.ApiProductController.update
+DELETE  /product                     controllers.ApiProductController.delete
+GET     /productFromCategory         controllers.ApiProductController.readByCategoryId
 
 # Cart
 GET     /cart/token                 controllers.ApiCartController.getToken
@@ -224,7 +187,4 @@ DELETE  /discountcode               controllers.ApiDiscountCodeController.delete
 GET     /discountcode/check         controllers.ApiDiscountCodeController.checkCodeForProducts
 
 # Map static resources from the /public folder to the /assets URL path
-#GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
-
 GET         /assets/*file                    controllers.Assets.versioned(path="/public", file: Asset)
-->          /webjars                         webjars.Routes

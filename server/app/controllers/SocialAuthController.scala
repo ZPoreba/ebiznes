@@ -6,7 +6,6 @@ import com.mohiva.play.silhouette.api.exceptions.ProviderException
 import com.mohiva.play.silhouette.impl.providers._
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContent, Request}
-
 import scala.concurrent.{ExecutionContext, Future}
 
 class SocialAuthController @Inject() (scc: SilhouetteControllerComponents)(implicit ex: ExecutionContext) extends SilhouetteController(scc) {
@@ -34,8 +33,7 @@ class SocialAuthController @Inject() (scc: SilhouetteControllerComponents)(impli
     }).recover {
       case e: ProviderException =>
         logger.error("Unexpected provider error", e)
-        val lang = request.messages.lang
-        Redirect(routes.ApplicationController.signIn()).flashing("error" -> messagesApi("could.not.authenticate")(lang))
+        InternalServerError(Json.obj("errorCode" -> "Could not authenticate"))
     }
   }
 }

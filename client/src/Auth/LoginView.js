@@ -9,10 +9,6 @@ import {withRouter} from "react-router-dom";
 
 class LoginView extends Component {
 
-    constructor(props) {
-        super(props);
-    }
-
     google = () => {
         loginService.loginWithGoogle();
     }

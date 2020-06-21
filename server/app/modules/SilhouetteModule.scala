@@ -35,11 +35,7 @@ import play.api.libs.openid.OpenIdClient
 import play.api.libs.ws.WSClient
 import play.api.mvc.{ Cookie, CookieHeaderEncoding }
 import utils.auth.{ DefaultEnv }
-import utils.{ ErrorHandler }
-import net.ceedubs.ficus.readers.EnumerationReader._
 import play.api.db.slick.DatabaseConfigProvider
-
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.FiniteDuration
 
@@ -131,28 +127,16 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
    *
    * @param facebookProvider The Facebook provider implementation.
    * @param googleProvider The Google provider implementation.
-   * @param vkProvider The VK provider implementation.
-   * @param twitterProvider The Twitter provider implementation.
-   * @param xingProvider The Xing provider implementation.
-   * @param yahooProvider The Yahoo provider implementation.
    * @return The Silhouette environment.
    */
   @Provides
   def provideSocialProviderRegistry(
     facebookProvider: FacebookProvider,
-    googleProvider: GoogleProvider,
-    vkProvider: VKProvider,
-    twitterProvider: TwitterProvider,
-    xingProvider: XingProvider,
-    yahooProvider: YahooProvider): SocialProviderRegistry = {
+    googleProvider: GoogleProvider): SocialProviderRegistry = {
 
     SocialProviderRegistry(Seq(
       googleProvider,
-      facebookProvider,
-      twitterProvider,
-      vkProvider,
-      xingProvider,
-      yahooProvider))
+      facebookProvider))
   }
 
   /**
@@ -399,77 +383,6 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     configuration: Configuration): GoogleProvider = {
 
     new GoogleProvider(httpLayer, socialStateHandler, configuration.underlying.as[OAuth2Settings]("silhouette.google"))
-  }
-
-  /**
-   * Provides the VK provider.
-   *
-   * @param httpLayer The HTTP layer implementation.
-   * @param socialStateHandler The social state handler implementation.
-   * @param configuration The Play configuration.
-   * @return The VK provider.
-   */
-  @Provides
-  def provideVKProvider(
-    httpLayer: HTTPLayer,
-    socialStateHandler: SocialStateHandler,
-    configuration: Configuration): VKProvider = {
-
-    new VKProvider(httpLayer, socialStateHandler, configuration.underlying.as[OAuth2Settings]("silhouette.vk"))
-  }
-
-  /**
-   * Provides the Twitter provider.
-   *
-   * @param httpLayer The HTTP layer implementation.
-   * @param tokenSecretProvider The token secret provider implementation.
-   * @param configuration The Play configuration.
-   * @return The Twitter provider.
-   */
-  @Provides
-  def provideTwitterProvider(
-    httpLayer: HTTPLayer,
-    tokenSecretProvider: OAuth1TokenSecretProvider,
-    configuration: Configuration): TwitterProvider = {
-
-    val settings = configuration.underlying.as[OAuth1Settings]("silhouette.twitter")
-    new TwitterProvider(httpLayer, new PlayOAuth1Service(settings), tokenSecretProvider, settings)
-  }
-
-  /**
-   * Provides the Xing provider.
-   *
-   * @param httpLayer The HTTP layer implementation.
-   * @param tokenSecretProvider The token secret provider implementation.
-   * @param configuration The Play configuration.
-   * @return The Xing provider.
-   */
-  @Provides
-  def provideXingProvider(
-    httpLayer: HTTPLayer,
-    tokenSecretProvider: OAuth1TokenSecretProvider,
-    configuration: Configuration): XingProvider = {
-
-    val settings = configuration.underlying.as[OAuth1Settings]("silhouette.xing")
-    new XingProvider(httpLayer, new PlayOAuth1Service(settings), tokenSecretProvider, settings)
-  }
-
-  /**
-   * Provides the Yahoo provider.
-   *
-   * @param httpLayer The HTTP layer implementation.
-   * @param client The OpenID client implementation.
-   * @param configuration The Play configuration.
-   * @return The Yahoo provider.
-   */
-  @Provides
-  def provideYahooProvider(
-    httpLayer: HTTPLayer,
-    client: OpenIdClient,
-    configuration: Configuration): YahooProvider = {
-
-    val settings = configuration.underlying.as[OpenIDSettings]("silhouette.yahoo")
-    new YahooProvider(httpLayer, new PlayOpenIDService(client, settings), settings)
   }
 
   /**

@@ -5,24 +5,23 @@ import models.{ ProductRepository, UserRepository, WishListProductRepository }
 import play.api.libs.json._
 import play.api.mvc._
 import play.filters.csrf.CSRF
-
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, ExecutionContext, Future }
 
 @Singleton
 class ApiWishListController @Inject() (
+  scc: SilhouetteControllerComponents,
   wishListProductRepository: WishListProductRepository,
   userRepository: UserRepository,
-  productRepository: ProductRepository,
-  cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
+  productRepository: ProductRepository)(implicit ec: ExecutionContext) extends SilhouetteController(scc) {
 
   def getToken = Action { implicit request =>
     val token = CSRF.getToken.get.value
     Ok(token)
   }
 
-  def create = Action.async { implicit request =>
+  def create = SecuredAction.async { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("userId")) {
       Future(Ok("Error during adding product to wish list"))
@@ -46,7 +45,7 @@ class ApiWishListController @Inject() (
     }
   }
 
-  def read: Action[AnyContent] = Action { implicit request =>
+  def read: Action[AnyContent] = SecuredAction { implicit request =>
     val wishLists = Await.result(wishListProductRepository.list(), Duration.Inf)
     val wishListMap = scala.collection.mutable.Map[String, ListBuffer[Long]]()
 
@@ -65,7 +64,7 @@ class ApiWishListController @Inject() (
     Ok(Json.toJson(wishListMap))
   }
 
-  def readById: Action[AnyContent] = Action { implicit request =>
+  def readById: Action[AnyContent] = SecuredAction { implicit request =>
 
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("id")) {
@@ -84,13 +83,13 @@ class ApiWishListController @Inject() (
 
   }
 
-  def update = Action { implicit request =>
+  def update = SecuredAction { implicit request =>
     Ok("WishList update not needed if we assume existence of wishlist-product table. " +
       "Than update means deleting old relation and create new one.")
   }
 
   // By user id
-  def delete = Action { implicit request =>
+  def delete = SecuredAction { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("id")) {
@@ -105,7 +104,7 @@ class ApiWishListController @Inject() (
     }
   }
 
-  def deleteProductForUser = Action { implicit request =>
+  def deleteProductForUser = SecuredAction { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("userId")) {

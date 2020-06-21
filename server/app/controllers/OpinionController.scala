@@ -5,7 +5,6 @@ import models.{ Opinion, OpinionRepository, ProductRepository, UserRepository }
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.mvc._
-import play.filters.csrf.CSRF
 import play.api.data.Forms._
 
 import scala.concurrent.duration.Duration
@@ -14,8 +13,6 @@ import scala.concurrent.{ Await, ExecutionContext, Future }
 @Singleton
 class OpinionController @Inject() (
   opinionRepository: OpinionRepository,
-  productRepository: ProductRepository,
-  userRepository: UserRepository,
   cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
 
   val createForm: Form[CreateOpinionForm] = Form {

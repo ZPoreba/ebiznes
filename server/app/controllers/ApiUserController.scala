@@ -5,30 +5,29 @@ import models.{ ApiUser, CartProductRepository, OpinionRepository, OrderReposito
 import play.api.libs.json._
 import play.api.mvc._
 import play.filters.csrf.CSRF
-
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, ExecutionContext, Future }
 
 @Singleton
 class ApiUserController @Inject() (
+  scc: SilhouetteControllerComponents,
   userRepository: UserRepository,
   cartProductRepository: CartProductRepository,
   wishListProductRepository: WishListProductRepository,
   opinionRepository: OpinionRepository,
-  orderRepository: OrderRepository,
-  cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
+  orderRepository: OrderRepository)(implicit ec: ExecutionContext) extends SilhouetteController(scc) {
 
   def getToken = Action { implicit request =>
     val token = CSRF.getToken.get.value
     Ok(token)
   }
 
-  def read: Action[AnyContent] = Action { implicit request =>
+  def read: Action[AnyContent] = SecuredAction { implicit request =>
     val users = Await.result(userRepository.list(), Duration.Inf)
     Ok(Json.toJson(users))
   }
 
-  def readById: Action[AnyContent] = Action.async { implicit request =>
+  def readById: Action[AnyContent] = SecuredAction.async { implicit request =>
 
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("id")) {
@@ -43,7 +42,7 @@ class ApiUserController @Inject() (
 
   }
 
-  def update = Action.async { implicit request =>
+  def update = SecuredAction.async { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("id")) {
@@ -87,7 +86,7 @@ class ApiUserController @Inject() (
     }
   }
 
-  def delete = Action { implicit request =>
+  def delete = SecuredAction { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("id")) {

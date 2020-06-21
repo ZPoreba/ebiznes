@@ -1,9 +1,15 @@
 package utils
 
 import javax.inject.Inject
-
-import play.api.http.DefaultHttpFilters
+import play.api.http.HttpFilters
+import play.api.mvc.EssentialFilter
 import play.filters.cors.CORSFilter
+import play.filters.csrf.CSRFFilter
+import play.filters.headers.SecurityHeadersFilter
 
-class Filters @Inject() (corsFilter: CORSFilter)
-  extends DefaultHttpFilters(corsFilter)
+/**
+ * Provides filters.
+ */
+class Filters @Inject() (csrfFilter: CSRFFilter, securityHeadersFilter: SecurityHeadersFilter, corsFilter: CORSFilter) extends HttpFilters {
+  override def filters: Seq[EssentialFilter] = Seq(csrfFilter, securityHeadersFilter, corsFilter)
+}

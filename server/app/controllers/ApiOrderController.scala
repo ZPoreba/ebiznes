@@ -5,24 +5,23 @@ import models.{ Order, OrderProductRepository, OrderRepository, Product, Product
 import play.api.libs.json._
 import play.api.mvc._
 import play.filters.csrf.CSRF
-
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, ExecutionContext, Future }
 
 @Singleton
 class ApiOrderController @Inject() (
+  scc: SilhouetteControllerComponents,
   productRepository: ProductRepository,
   orderRepository: OrderRepository,
-  orderProductRepository: OrderProductRepository,
-  cc: MessagesControllerComponents)(implicit ec: ExecutionContext)
-  extends MessagesAbstractController(cc) {
+  orderProductRepository: OrderProductRepository)(implicit ec: ExecutionContext)
+  extends SilhouetteController(scc) {
 
   def getToken = Action { implicit request =>
     val token = CSRF.getToken.get.value
     Ok(token)
   }
 
-  def create: Action[AnyContent] = Action.async { implicit request =>
+  def create: Action[AnyContent] = SecuredAction.async { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("userId")) {
       Future(Ok("No userId parameter in query"))
@@ -50,12 +49,12 @@ class ApiOrderController @Inject() (
     }
   }
 
-  def read: Action[AnyContent] = Action { implicit request =>
+  def read: Action[AnyContent] = SecuredAction { implicit request =>
     val orders = Await.result(orderRepository.list(), Duration.Inf)
     Ok(Json.toJson(orders))
   }
 
-  def readById: Action[AnyContent] = Action { implicit request =>
+  def readById: Action[AnyContent] = SecuredAction { implicit request =>
 
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("id")) {
@@ -81,7 +80,7 @@ class ApiOrderController @Inject() (
 
   }
 
-  def readByUserId: Action[AnyContent] = Action { implicit request =>
+  def readByUserId: Action[AnyContent] = SecuredAction { implicit request =>
 
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("userId")) {
@@ -106,7 +105,7 @@ class ApiOrderController @Inject() (
 
   }
 
-  def update = Action.async { implicit request =>
+  def update = SecuredAction.async { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("id")) {
@@ -149,7 +148,7 @@ class ApiOrderController @Inject() (
     }
   }
 
-  def delete = Action { implicit request =>
+  def delete = SecuredAction { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("id")) {

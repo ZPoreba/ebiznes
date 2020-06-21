@@ -66,6 +66,7 @@ class CartView extends Component {
         let total = 0;
         this.state.products.map(product => {
             total += product.counter * product.price;
+            return product;
         });
 
         this.total = total;
@@ -77,6 +78,7 @@ class CartView extends Component {
 
         this.state.products.map( (item) => {
             products = products.concat(item.id.toString()).concat(',');
+            return item;
         });
 
         this.refs.cartModal.show(this.total, products);

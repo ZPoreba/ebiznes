@@ -1,18 +1,15 @@
 package controllers
 
-import java.text.SimpleDateFormat
-
 import javax.inject._
 import models.{ Payment, PaymentRepository }
 import play.api.libs.json._
 import play.api.mvc._
 import play.filters.csrf.CSRF
-
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, ExecutionContext, Future }
 
 @Singleton
-class ApiPaymentController @Inject() (paymentRepository: PaymentRepository, cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
+class ApiPaymentController @Inject() (scc: SilhouetteControllerComponents, paymentRepository: PaymentRepository)(implicit ec: ExecutionContext) extends SilhouetteController(scc) {
 
   def getToken = Action { implicit request =>
     val token = CSRF.getToken.get.value
@@ -26,7 +23,7 @@ class ApiPaymentController @Inject() (paymentRepository: PaymentRepository, cc: 
     new java.sql.Date(utilDate.getTime)
   }
 
-  def create = Action.async { implicit request =>
+  def create = SecuredAction.async { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("date")) {
       Future(Ok("No date parameter in query"))
@@ -43,12 +40,12 @@ class ApiPaymentController @Inject() (paymentRepository: PaymentRepository, cc: 
     }
   }
 
-  def read: Action[AnyContent] = Action { implicit request =>
+  def read: Action[AnyContent] = SecuredAction { implicit request =>
     val payments = Await.result(paymentRepository.list(), Duration.Inf)
     Ok(Json.toJson(payments))
   }
 
-  def readById: Action[AnyContent] = Action.async { implicit request =>
+  def readById: Action[AnyContent] = SecuredAction.async { implicit request =>
 
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("id")) {
@@ -63,7 +60,7 @@ class ApiPaymentController @Inject() (paymentRepository: PaymentRepository, cc: 
 
   }
 
-  def update = Action.async { implicit request =>
+  def update = SecuredAction.async { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("id")) {
@@ -92,7 +89,7 @@ class ApiPaymentController @Inject() (paymentRepository: PaymentRepository, cc: 
     }
   }
 
-  def delete = Action { implicit request =>
+  def delete = SecuredAction { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("id")) {

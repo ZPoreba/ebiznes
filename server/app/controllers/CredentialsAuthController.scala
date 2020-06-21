@@ -4,18 +4,15 @@ import com.mohiva.play.silhouette.api.Authenticator.Implicits._
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.api.exceptions.ProviderException
 import com.mohiva.play.silhouette.api.util.Credentials
-import com.mohiva.play.silhouette.impl.exceptions.IdentityNotFoundException
 import com.mohiva.play.silhouette.impl.providers._
 import forms.SignInForm
 import net.ceedubs.ficus.Ficus._
 import play.api.Configuration
-
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.language.postfixOps
 import javax.inject.Inject
 import play.api.libs.json.Json
-
 import scala.concurrent.ExecutionContext
 
 class CredentialsAuthController @Inject() (

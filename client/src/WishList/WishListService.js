@@ -18,8 +18,8 @@ const getWishListProducts = () => {
     const fetchData = {
         method: 'GET',
         mode: "cors",
-        headers: new Headers(),
-        redirect: 'follow'
+        redirect: 'follow',
+        credentials: 'include'
     };
 
     let esc = encodeURIComponent;
@@ -48,8 +48,8 @@ const getProductById = (productId) => {
     const fetchData = {
         method: 'GET',
         mode: "cors",
-        headers: new Headers(),
-        redirect: 'follow'
+        redirect: 'follow',
+        credentials: 'include'
     };
 
     let esc = encodeURIComponent;
@@ -80,8 +80,8 @@ const deleteProductForUser = (productId) => {
     const fetchData = {
         method: 'DELETE',
         mode: "cors",
-        headers: new Headers(),
-        redirect: 'follow'
+        redirect: 'follow',
+        credentials: 'include'
     };
 
     let esc = encodeURIComponent;

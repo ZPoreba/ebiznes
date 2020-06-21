@@ -18,8 +18,8 @@ const getUserData = () => {
     const fetchData = {
         method: 'GET',
         mode: "cors",
-        headers: new Headers(),
-        redirect: 'follow'
+        redirect: 'follow',
+        credentials: 'include'
     };
 
     let esc = encodeURIComponent;
@@ -51,8 +51,9 @@ const putUserData = (data) => {
 
     const fetchData = {
         method: 'PUT',
-        headers: new Headers(),
-        redirect: 'follow'
+        mode: "cors",
+        redirect: 'follow',
+        credentials: 'include'
     };
 
     let esc = encodeURIComponent;

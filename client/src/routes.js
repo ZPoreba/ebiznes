@@ -10,6 +10,7 @@ import ReturnsView from './Returns/ReturnsView';
 import LoginView from "./Auth/LoginView";
 import RegistrationView from "./Auth/RegistrationView";
 import AuthProvider from "./Auth/AuthProvider";
+import MainView from "./Main/MainView";
 
 
 const routes = () => (
@@ -26,7 +27,7 @@ const routes = () => (
             <Route path="/register" component={RegistrationView}/>
             <Route path="/authenticated/google" render={(props) => (<AuthProvider {...props} provider='google'/>)}/>
             <Route path="/authenticated/facebook" render={(props) => (<AuthProvider {...props} provider='facebook'/>)}/>
-            <Route path="/" />
+            <Route path="/" component={MainView} />
         </Switch>
     </div>
 );

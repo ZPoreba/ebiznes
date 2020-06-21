@@ -119,6 +119,7 @@ class OrderModal extends Component {
         let total = 0;
         this.state.products.map(product => {
             total += product.price;
+            return product;
         });
 
         return total;
@@ -160,7 +161,7 @@ class OrderModal extends Component {
                     locale={{emptyText: 'No products in order'}}
                     pagination={{
                         size: "small",
-                        pageSize: 2,
+                        pageSize: 1,
                     }}
                     dataSource={this.state.products}
                     renderItem={item => (

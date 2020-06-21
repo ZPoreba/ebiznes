@@ -5,23 +5,22 @@ import models.{ CartProductRepository, ProductRepository, UserRepository }
 import play.api.libs.json._
 import play.api.mvc._
 import play.filters.csrf.CSRF
-
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, ExecutionContext, Future }
 
 @Singleton
 class ApiCartController @Inject() (
+  scc: SilhouetteControllerComponents,
   cartProductRepository: CartProductRepository,
   userRepository: UserRepository,
-  productRepository: ProductRepository,
-  cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
+  productRepository: ProductRepository)(implicit ec: ExecutionContext) extends SilhouetteController(scc){
 
   def getToken = Action { implicit request =>
     val token = CSRF.getToken.get.value
     Ok(token)
   }
 
-  def create: Action[AnyContent] = Action.async { implicit request =>
+  def create: Action[AnyContent] = SecuredAction.async { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("userId")) {
       Future(Ok("Error during adding product to bucket"))
@@ -45,12 +44,12 @@ class ApiCartController @Inject() (
     }
   }
 
-  def read: Action[AnyContent] = Action.async { implicit request =>
+  def read: Action[AnyContent] = SecuredAction.async { implicit request =>
     val carts = cartProductRepository.list()
     carts.map(cart => Ok(Json.toJson(cart)))
   }
 
-  def readById: Action[AnyContent] = Action { implicit request =>
+  def readById: Action[AnyContent] = SecuredAction { implicit request =>
 
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("id")) {
@@ -69,13 +68,13 @@ class ApiCartController @Inject() (
 
   }
 
-  def update = Action { implicit request =>
+  def update = SecuredAction { implicit request =>
     Ok("Basket update not needed if we assume existence of cart-product table. " +
       "Than update means deleting old relation and create new one.")
   }
 
   // By user id
-  def delete = Action { implicit request =>
+  def delete = SecuredAction { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("userId")) {
@@ -90,7 +89,7 @@ class ApiCartController @Inject() (
     }
   }
 
-  def deleteProductForUser = Action { implicit request =>
+  def deleteProductForUser = SecuredAction { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("userId")) {

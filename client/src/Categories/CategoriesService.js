@@ -7,13 +7,13 @@ const checkStatus = (response) => {
     return response;
 }
 
-const getCategories = () => {
+const getCategories = async () => {
 
     const fetchData = {
         method: 'GET',
         mode: "cors",
-        headers: new Headers(),
-        redirect: 'follow'
+        redirect: 'follow',
+        credentials: 'include'
     };
 
     return fetch(`${API_URL}/categories`, fetchData)

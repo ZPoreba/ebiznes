@@ -5,23 +5,22 @@ import models.{ ProductRepository, Return, ReturnRepository, UserRepository }
 import play.api.libs.json._
 import play.api.mvc._
 import play.filters.csrf.CSRF
-
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, ExecutionContext, Future }
 
 @Singleton
 class ApiReturnController @Inject() (
+  scc: SilhouetteControllerComponents,
   returnRepository: ReturnRepository,
   productRepository: ProductRepository,
-  userRepository: UserRepository,
-  cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
+  userRepository: UserRepository)(implicit ec: ExecutionContext) extends SilhouetteController(scc) {
 
   def getToken = Action { implicit request =>
     val token = CSRF.getToken.get.value
     Ok(token)
   }
 
-  def create: Action[AnyContent] = Action.async { implicit request =>
+  def create: Action[AnyContent] = SecuredAction.async { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("userId")) {
       Future(Ok("No userId parameter in query"))
@@ -46,12 +45,12 @@ class ApiReturnController @Inject() (
     }
   }
 
-  def read: Action[AnyContent] = Action { implicit request =>
+  def read: Action[AnyContent] = SecuredAction { implicit request =>
     val returns = Await.result(returnRepository.list(), Duration.Inf)
     Ok(Json.toJson(returns))
   }
 
-  def readById: Action[AnyContent] = Action { implicit request =>
+  def readById: Action[AnyContent] = SecuredAction { implicit request =>
 
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("id")) {
@@ -63,7 +62,7 @@ class ApiReturnController @Inject() (
 
   }
 
-  def readByUserId: Action[AnyContent] = Action { implicit request =>
+  def readByUserId: Action[AnyContent] = SecuredAction { implicit request =>
 
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("userId")) {
@@ -88,7 +87,7 @@ class ApiReturnController @Inject() (
 
   }
 
-  def update = Action.async { implicit request =>
+  def update = SecuredAction.async { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("id")) {
@@ -118,7 +117,7 @@ class ApiReturnController @Inject() (
     }
   }
 
-  def delete = Action { implicit request =>
+  def delete = SecuredAction { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("id")) {

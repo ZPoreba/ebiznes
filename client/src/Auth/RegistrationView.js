@@ -12,10 +12,6 @@ import {withRouter} from "react-router-dom";
 
 class RegistrationView extends Component {
 
-        constructor(props) {
-            super(props);
-        }
-
     onFinish = values => {
         registrationService.register(values.firstName, values.lastName, values.email, values.password).then(resp => {
             this.props.history.push('/login');

@@ -5,23 +5,22 @@ import models.{ Opinion, OpinionRepository, ProductRepository, UserRepository }
 import play.api.libs.json._
 import play.api.mvc._
 import play.filters.csrf.CSRF
-
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, ExecutionContext, Future }
 
 @Singleton
 class ApiOpinionController @Inject() (
+  scc: SilhouetteControllerComponents,
   opinionRepository: OpinionRepository,
   productRepository: ProductRepository,
-  userRepository: UserRepository,
-  cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
+  userRepository: UserRepository)(implicit ec: ExecutionContext) extends SilhouetteController(scc) {
 
   def getToken = Action { implicit request =>
     val token = CSRF.getToken.get.value
     Ok(token)
   }
 
-  def create: Action[AnyContent] = Action.async { implicit request =>
+  def create: Action[AnyContent] = SecuredAction.async { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("userId")) {
       Future(Ok("No userId parameter in query"))
@@ -46,12 +45,12 @@ class ApiOpinionController @Inject() (
     }
   }
 
-  def read: Action[AnyContent] = Action { implicit request =>
+  def read: Action[AnyContent] = SecuredAction { implicit request =>
     val opinions = Await.result(opinionRepository.list(), Duration.Inf)
     Ok(Json.toJson(opinions))
   }
 
-  def readById: Action[AnyContent] = Action { implicit request =>
+  def readById: Action[AnyContent] = SecuredAction { implicit request =>
 
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("id")) {
@@ -63,7 +62,7 @@ class ApiOpinionController @Inject() (
 
   }
 
-  def readByProductId: Action[AnyContent] = Action { implicit request =>
+  def readByProductId: Action[AnyContent] = SecuredAction { implicit request =>
 
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
     if (!params.contains("productId")) {
@@ -75,7 +74,7 @@ class ApiOpinionController @Inject() (
 
   }
 
-  def update = Action.async { implicit request =>
+  def update = SecuredAction.async { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("id")) {
@@ -105,7 +104,7 @@ class ApiOpinionController @Inject() (
     }
   }
 
-  def delete = Action { implicit request =>
+  def delete = SecuredAction { implicit request =>
     val params = request.queryString.map { case (k, v) => k -> v.mkString }
 
     if (!params.contains("id")) {

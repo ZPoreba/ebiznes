@@ -1,13 +1,11 @@
 package controllers
 
 import javax.inject._
-import models.{CartProduct, CartProductRepository, Product, ProductRepository, UserRepository}
+import models.{CartProductRepository, Product, ProductRepository, UserRepository}
 import play.api.data.Form
 import play.api.data.Forms.{mapping, number, seq}
 import play.api.mvc._
-import play.filters.csrf.CSRF
 import play.api.data.Forms._
-
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.collection.mutable.ListBuffer

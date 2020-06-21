@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './style.css';
 import "antd/dist/antd.css";
-import {Button, List, Spin, Modal} from "antd";
+import {Button, List, Spin} from "antd";
 import { ordersService } from './OrdersService';
 import OrderModal from "./components/OrderModal";
 import {withRouter} from "react-router-dom";

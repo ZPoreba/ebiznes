@@ -38,7 +38,7 @@ class CustomLayout extends Component{
                 <Menu.Item
                     key="logout"
                     style={{float: 'right'}}>
-                    <a onClick={() => this.logOut()} >LOG OUT</a>
+                    <div onClick={() => this.logOut()} >LOG OUT</div>
                 </Menu.Item>
                 <Menu.Item
                     key="search"
@@ -79,6 +79,8 @@ class CustomLayout extends Component{
     }
 
     render(){
+        let logoRedirectUrl = this.state.authenticator ? '/search': '/';
+
         return (
             <Layout>
                 <Header style={{
@@ -87,7 +89,9 @@ class CustomLayout extends Component{
                     width: "100%"
                 }}>
                     <div style={{float: "left"}}>
-                        <Link style={{fontFamily: "Times New Roman"}} to="/" onClick={this.onLogoClick} > eBusiness </Link>
+                        <Link style={{fontFamily: "Times New Roman"}}
+                              to={logoRedirectUrl}
+                              onClick={this.onLogoClick} > eBusiness </Link>
                     </div>
                     {
                         this.state.authenticator ?

@@ -20,8 +20,8 @@ const getBucketProducts = () => {
     const fetchData = {
         method: 'GET',
         mode: "cors",
-        headers: new Headers(),
-        redirect: 'follow'
+        redirect: 'follow',
+        credentials: 'include'
     };
 
     let esc = encodeURIComponent;
@@ -50,8 +50,8 @@ const getProductById = (productId) => {
     const fetchData = {
         method: 'GET',
         mode: "cors",
-        headers: new Headers(),
-        redirect: 'follow'
+        redirect: 'follow',
+        credentials: 'include'
     };
 
     let esc = encodeURIComponent;
@@ -82,8 +82,8 @@ const deleteProductForUser = (productId) => {
     const fetchData = {
         method: 'DELETE',
         mode: "cors",
-        headers: new Headers(),
-        redirect: 'follow'
+        redirect: 'follow',
+        credentials: 'include'
     };
 
     let esc = encodeURIComponent;
@@ -113,8 +113,8 @@ const createPayment = () => {
     const fetchData = {
         method: 'POST',
         mode: "cors",
-        headers: new Headers(),
-        redirect: 'follow'
+        redirect: 'follow',
+        credentials: 'include'
     };
 
     let esc = encodeURIComponent;
@@ -140,8 +140,8 @@ const createOrder = (orderData) => {
     const fetchData = {
         method: 'POST',
         mode: "cors",
-        headers: new Headers(),
-        redirect: 'follow'
+        redirect: 'follow',
+        credentials: 'include'
     };
 
     let esc = encodeURIComponent;
@@ -170,8 +170,8 @@ const deleteCart = () => {
     const fetchData = {
         method: 'DELETE',
         mode: "cors",
-        headers: new Headers(),
-        redirect: 'follow'
+        redirect: 'follow',
+        credentials: 'include'
     };
 
     let esc = encodeURIComponent;
@@ -200,8 +200,8 @@ const checkDiscountCode = (code, products) => {
     const fetchData = {
         method: 'GET',
         mode: "cors",
-        headers: new Headers(),
-        redirect: 'follow'
+        redirect: 'follow',
+        credentials: 'include'
     };
 
     let esc = encodeURIComponent;

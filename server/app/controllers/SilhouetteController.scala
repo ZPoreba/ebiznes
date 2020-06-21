@@ -13,7 +13,6 @@ import play.api.http.FileMimeTypes
 import play.api.i18n.{ I18nSupport, Langs, MessagesApi }
 import play.api.mvc._
 import utils.auth.DefaultEnv
-
 import scala.concurrent.duration.FiniteDuration
 
 abstract class SilhouetteController(override protected val controllerComponents: SilhouetteControllerComponents)

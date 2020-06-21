@@ -17,8 +17,8 @@ const getProducts = (categoryId) => {
     const fetchData = {
         method: 'GET',
         mode: "cors",
-        headers: new Headers(),
-        redirect: 'follow'
+        redirect: 'follow',
+        credentials: 'include'
     };
 
     let esc = encodeURIComponent;
@@ -43,8 +43,8 @@ const getAllProducts = () => {
     const fetchData = {
         method: 'GET',
         mode: "cors",
-        headers: new Headers(),
-        redirect: 'follow'
+        redirect: 'follow',
+        credentials: 'include'
     };
 
     return fetch(url, fetchData)
@@ -66,8 +66,8 @@ const getOpinionsForProduct = (productId) => {
     const fetchData = {
         method: 'GET',
         mode: "cors",
-        headers: new Headers(),
-        redirect: 'follow'
+        redirect: 'follow',
+        credentials: 'include'
     };
 
     let esc = encodeURIComponent;
@@ -98,8 +98,8 @@ const addToBucket = (productId) => {
     const fetchData = {
         method: 'POST',
         mode: "cors",
-        headers: new Headers(),
-        redirect: 'follow'
+        redirect: 'follow',
+        credentials: 'include'
     };
 
     let esc = encodeURIComponent;
@@ -129,8 +129,8 @@ const addToWishList = (productId) => {
     const fetchData = {
         method: 'POST',
         mode: "cors",
-        headers: new Headers(),
-        redirect: 'follow'
+        redirect: 'follow',
+        credentials: 'include'
     };
 
     let esc = encodeURIComponent;
@@ -158,8 +158,8 @@ const getUserById = (id) => {
     const fetchData = {
         method: 'GET',
         mode: "cors",
-        headers: new Headers(),
-        redirect: 'follow'
+        redirect: 'follow',
+        credentials: 'include'
     };
 
     let esc = encodeURIComponent;

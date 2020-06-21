@@ -1,14 +1,11 @@
 package controllers
 
 import javax.inject._
-import models.{ApiUser, Product, ProductRepository, Return, ReturnRepository, User, UserRepository}
+import models.{ApiUser, Product, ProductRepository, Return, ReturnRepository, UserRepository}
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.data.Forms._
 import play.api.mvc._
-import play.filters.csrf.CSRF
-
-import scala.collection.mutable.ListBuffer
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Success}
@@ -44,8 +41,8 @@ class ReturnController @Inject()(returnRepository: ReturnRepository,
   }
 
   def createHandle = Action.async { implicit request =>
-    var usr = Await.result(userRepository.list(), Duration.Inf)
-    var prod = Await.result(productRepository.list(), Duration.Inf)
+    val usr = Await.result(userRepository.list(), Duration.Inf)
+    val prod = Await.result(productRepository.list(), Duration.Inf)
 
     createForm.bindFromRequest.fold(
       errorForm => {

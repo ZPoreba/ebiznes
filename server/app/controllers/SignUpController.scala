@@ -1,14 +1,12 @@
 package controllers
 
 import java.util.UUID
-
 import javax.inject.Inject
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.impl.providers._
 import forms.SignUpForm
 import models.User
 import play.api.libs.json.Json
-
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 
