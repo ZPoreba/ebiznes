@@ -1,0 +1,33 @@
+@(order: Form[UpdateOrderForm], user: Seq[ApiUser], payment: Seq[Payment], product: Seq[(String, String)])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@import helper._
+
+@flash.get("success").getOrElse("")
+
+@form(routes.OrderController.updateHandle()) {
+  @helper.CSRF.formField
+  <input name="id" id="id" value="@order("id").value" type="hidden" />
+
+  User:
+  <select name="userId" id="userId">
+  @for(u <- user){
+    <option value="@u.id">@u.firstName @u.lastName</option>
+  }
+  </select>
+
+  <br />
+  Payment id:
+  <select name="paymentId" id="paymentId">
+  @for(p <- payment){
+    <option value="@p.id">@p.id</option>
+  }
+  </select>
+
+  @inputText(order("status"))
+
+  @helper.select(order("product"), product, 'multiple -> None )
+
+  <div class="buttons">
+    <input type="submit" value="Update Order"/>
+  </div>
+}

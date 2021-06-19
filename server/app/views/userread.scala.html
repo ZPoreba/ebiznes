@@ -1,0 +1,8 @@
+@(user: ApiUser)
+
+<strong>@user.firstName @user.lastName</strong>
+  @user.id
+  @user.email
+  @user.address
+
+<a href="@controllers.routes.UserController.delete(user.id.toString)">Delete</a>

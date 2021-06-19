@@ -1,86 +1,190 @@
-
 # Routes
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
-
-# An example controller showing a sample home page
-GET     /                           controllers.HomeController.index
-# An example controller showing how to use dependency injection
-GET     /count                      controllers.CountController.count
-# An example controller showing how to write asynchronous code
-GET     /message                    controllers.AsyncController.message
+#Authorization
+GET         /account/security                controllers.ApplicationController.getToken
+GET         /                                controllers.ApplicationController.index
+GET         /signOut                         controllers.ApplicationController.signOut
+GET         /authenticate/:provider          controllers.SocialAuthController.authenticate(provider)
++nocsrf
+POST        /authenticate/credentials        controllers.CredentialsAuthController.authenticate
++nocsrf
+POST        /signUp                          controllers.SignUpController.signUp
 
 # Product
-GET     /product/token              controllers.ProductController.getToken
-POST    /product                    controllers.ProductController.create
-GET     /product                    controllers.ProductController.read
-PUT     /product                    controllers.ProductController.update
-DELETE  /product                    controllers.ProductController.delete
+GET     /readproducts               controllers.ProductController.read
+GET     /readproduct/:id            controllers.ProductController.readById(id: Long)
+GET     /addproduct                 controllers.ProductController.create
+POST    /addproducthandle           controllers.ProductController.createHandle
+GET     /updateproduct/:id          controllers.ProductController.update(id: Long)
+POST    /updateproducthandle        controllers.ProductController.updateHandle
+GET     /deleteproduct/:id          controllers.ProductController.delete(id: Long)
 
 # Cart
-GET     /cart/token                 controllers.CartController.getToken
-POST    /cart                       controllers.CartController.create
-GET     /cart                       controllers.CartController.read
-PUT     /cart                       controllers.CartController.update
-DELETE  /cart                       controllers.CartController.delete
+GET     /readcarts                  controllers.CartController.read
+GET     /readcart/:id               controllers.CartController.readById(id: String)
+GET     /addcart                    controllers.CartController.create
+GET     /addcarthandle              controllers.CartController.createHandle
+GET     /updatecart                 controllers.CartController.update
+GET     /deletecart/:id             controllers.CartController.delete(id: String)
 
 # Category
-GET     /category/token             controllers.CategoryController.getToken
-POST    /category                   controllers.CategoryController.create
-GET     /category                   controllers.CategoryController.read
-PUT     /category                   controllers.CategoryController.update
-DELETE  /category                   controllers.CategoryController.delete
+GET     /readcategories             controllers.CategoryController.read
+GET     /readcategory/:id           controllers.CategoryController.readById(id: Long)
+GET     /addcategory                controllers.CategoryController.create
+POST    /addcategoryhandle          controllers.CategoryController.createHandle
+GET     /updatecategory/:id         controllers.CategoryController.update(id: Long)
+POST    /updatecategoryhandle       controllers.CategoryController.updateHandle
+GET     /deletecategory/:id         controllers.CategoryController.delete(id: Long)
 
 # Opinion
-GET     /opinion/token              controllers.OpinionController.getToken
-POST    /opinion                    controllers.OpinionController.create
-GET     /opinion                    controllers.OpinionController.read
-PUT     /opinion                    controllers.OpinionController.update
-DELETE  /opinion                    controllers.OpinionController.delete
+GET     /readopinions               controllers.OpinionController.read
+GET     /readopinion/:id            controllers.OpinionController.readById(id: Long)
+GET     /addopinion                 controllers.OpinionController.create
+POST    /addopinionhandle           controllers.OpinionController.createHandle
+GET     /updateopinion/:id          controllers.OpinionController.update(id: Long)
+POST    /updateopinionhandle        controllers.OpinionController.updateHandle
+GET     /deleteopinion/:id          controllers.OpinionController.delete(id: Long)
 
 # Order
-GET     /order/token                controllers.OrderController.getToken
-POST    /order                      controllers.OrderController.create
-GET     /order                      controllers.OrderController.read
-PUT     /order                      controllers.OrderController.update
-DELETE  /order                      controllers.OrderController.delete
+GET     /readorders                 controllers.OrderController.read
+GET     /readorder/:id              controllers.OrderController.readById(id: Long)
+GET     /addorder                   controllers.OrderController.create
+POST    /addorderhandle             controllers.OrderController.createHandle
+GET     /updateorder/:id            controllers.OrderController.update(id: Long)
+POST    /updateorderhandle          controllers.OrderController.updateHandle
+GET     /deleteorder/:id            controllers.OrderController.delete(id: Long)
 
 # Payment
-GET     /payment/token              controllers.PaymentController.getToken
-POST    /payment                    controllers.PaymentController.create
-GET     /payment                    controllers.PaymentController.read
-PUT     /payment                    controllers.PaymentController.update
-DELETE  /payment                    controllers.PaymentController.delete
+GET     /readpayments               controllers.PaymentController.read
+GET     /readpayment/:id            controllers.PaymentController.readById(id: Long)
+GET     /addpayment                 controllers.PaymentController.create
+POST    /addpaymenthandle           controllers.PaymentController.createHandle
+GET     /updatepayment/:id          controllers.PaymentController.update(id: Long)
+POST    /updatepaymenthandle        controllers.PaymentController.updateHandle
+GET     /deletepayment/:id          controllers.PaymentController.delete(id: Long)
 
 # User
-GET     /user/token                 controllers.UserController.getToken
-POST    /user                       controllers.UserController.create
-GET     /user                       controllers.UserController.read
-PUT     /user                       controllers.UserController.update
-DELETE  /user                       controllers.UserController.delete
+GET     /readusers                  controllers.UserController.read
+GET     /readuser/:id               controllers.UserController.readById(id: String)
+GET     /deleteuser/:id             controllers.UserController.delete(id: String)
 
 # Return
-GET     /return/token               controllers.ReturnController.getToken
-POST    /return                     controllers.ReturnController.create
-GET     /return                     controllers.ReturnController.read
-PUT     /return                     controllers.ReturnController.update
-DELETE  /return                     controllers.ReturnController.delete
+
+GET     /readreturns                 controllers.ReturnController.read
+GET     /readreturn/:id              controllers.ReturnController.readById(id: Long)
+GET     /addreturn                   controllers.ReturnController.create
+POST    /addreturnhandle             controllers.ReturnController.createHandle
+GET     /updatereturn/:id            controllers.ReturnController.update(id: Long)
+POST    /updatereturnhandle          controllers.ReturnController.updateHandle
+GET     /deletereturn/:id            controllers.ReturnController.delete(id: Long)
 
 # WishList
-GET     /wishlist/token             controllers.WishListController.getToken
-POST    /wishlist                   controllers.WishListController.create
-GET     /wishlist                   controllers.WishListController.read
-PUT     /wishlist                   controllers.WishListController.update
-DELETE  /wishlist                   controllers.WishListController.delete
+
+GET     /readwishlists               controllers.WishListController.read
+GET     /readwishlist/:id            controllers.WishListController.readById(id: String)
+GET     /addwishlist                 controllers.WishListController.create
+POST    /addwishlisthandle           controllers.WishListController.createHandle
+GET     /updatewishlist              controllers.WishListController.update
+GET     /deletewishlist/:id          controllers.WishListController.delete(id: String)
+
 
 # DiscountCode
-GET     /discountcode/token         controllers.DiscountCodeController.getToken
-POST    /discountcode               controllers.DiscountCodeController.create
-GET     /discountcode               controllers.DiscountCodeController.read
-PUT     /discountcode               controllers.DiscountCodeController.update
-DELETE  /discountcode               controllers.DiscountCodeController.delete
+
+GET     /readdiscountcodes           controllers.DiscountCodeController.read
+GET     /readdiscountcode/:id        controllers.DiscountCodeController.readById(id: Long)
+GET     /adddiscountcode             controllers.DiscountCodeController.create
+POST    /adddiscountcodehandle       controllers.DiscountCodeController.createHandle
+GET     /updatediscountcode          controllers.DiscountCodeController.update
+GET     /deletediscountcode/:id      controllers.DiscountCodeController.delete(id: Long)
+
+## API
+
+# Product
+GET     /product/token               controllers.ApiProductController.getToken
+GET     /products                    controllers.ApiProductController.read
+POST    /product                     controllers.ApiProductController.create
+GET     /product                     controllers.ApiProductController.readById
+PUT     /product                     controllers.ApiProductController.update
+DELETE  /product                     controllers.ApiProductController.delete
+GET     /productFromCategory         controllers.ApiProductController.readByCategoryId
+
+# Cart
+GET     /cart/token                 controllers.ApiCartController.getToken
+GET     /carts                      controllers.ApiCartController.read
+POST    /cart                       controllers.ApiCartController.create
+GET     /cart                       controllers.ApiCartController.readById
+PUT     /cart                       controllers.ApiCartController.update
+DELETE  /cart                       controllers.ApiCartController.delete
+DELETE  /cart/deleteProductForUser  controllers.ApiCartController.deleteProductForUser
+
+# Category
+GET     /category/token             controllers.ApiCategoryController.getToken
+GET     /categories                 controllers.ApiCategoryController.read
+POST    /category                   controllers.ApiCategoryController.create
+GET     /category                   controllers.ApiCategoryController.readById
+PUT     /category                   controllers.ApiCategoryController.update
+DELETE  /category                   controllers.ApiCategoryController.delete
+
+# Opinion
+GET     /opinion/token              controllers.ApiOpinionController.getToken
+GET     /opinions                   controllers.ApiOpinionController.read
+POST    /opinion                    controllers.ApiOpinionController.create
+GET     /opinion                    controllers.ApiOpinionController.readById
+PUT     /opinion                    controllers.ApiOpinionController.update
+DELETE  /opinion                    controllers.ApiOpinionController.delete
+GET     /opinionsForProduct         controllers.ApiOpinionController.readByProductId
+
+# Order
+GET     /order/token                controllers.ApiOrderController.getToken
+GET     /orders                     controllers.ApiOrderController.read
+POST    /order                      controllers.ApiOrderController.create
+GET     /order                      controllers.ApiOrderController.readById
+PUT     /order                      controllers.ApiOrderController.update
+DELETE  /order                      controllers.ApiOrderController.delete
+GET     /ordersForUser              controllers.ApiOrderController.readByUserId
+
+# Payment
+GET     /payment/token              controllers.ApiPaymentController.getToken
+GET     /payments                   controllers.ApiPaymentController.read
+POST    /payment                    controllers.ApiPaymentController.create
+GET     /payment                    controllers.ApiPaymentController.readById
+PUT     /payment                    controllers.ApiPaymentController.update
+DELETE  /payment                    controllers.ApiPaymentController.delete
+
+# User
+GET     /user/token                 controllers.ApiUserController.getToken
+GET     /users                      controllers.ApiUserController.read
+GET     /user                       controllers.ApiUserController.readById
+PUT     /user                       controllers.ApiUserController.update
+DELETE  /user                       controllers.ApiUserController.delete
+
+# Return
+GET     /return/token               controllers.ApiReturnController.getToken
+GET     /returns                    controllers.ApiReturnController.read
+POST    /return                     controllers.ApiReturnController.create
+GET     /return                     controllers.ApiReturnController.readById
+PUT     /return                     controllers.ApiReturnController.update
+DELETE  /return                     controllers.ApiReturnController.delete
+GET     /returnsForUser             controllers.ApiReturnController.readByUserId
+
+# WishList
+GET     /wishlist/token                 controllers.ApiWishListController.getToken
+GET     /wishlists                      controllers.ApiWishListController.read
+POST    /wishlist                       controllers.ApiWishListController.create
+GET     /wishlist                       controllers.ApiWishListController.readById
+PUT     /wishlist                       controllers.ApiWishListController.update
+DELETE  /wishlist                       controllers.ApiWishListController.delete
+DELETE  /wishlist/deleteProductForUser  controllers.ApiWishListController.deleteProductForUser
+
+# DiscountCode
+GET     /discountcode/token         controllers.ApiDiscountCodeController.getToken
+GET     /discountcodes              controllers.ApiDiscountCodeController.read
+POST    /discountcode               controllers.ApiDiscountCodeController.create
+GET     /discountcode               controllers.ApiDiscountCodeController.readById
+PUT     /discountcode               controllers.ApiDiscountCodeController.update
+DELETE  /discountcode               controllers.ApiDiscountCodeController.delete
+GET     /discountcode/check         controllers.ApiDiscountCodeController.checkCodeForProducts
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
-
-      
+GET         /assets/*file                    controllers.Assets.versioned(path="/public", file: Asset)

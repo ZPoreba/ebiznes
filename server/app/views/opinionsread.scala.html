@@ -1,0 +1,17 @@
+@(opinions: Seq[Opinion])
+
+<ul>
+  @for(opinion <- opinions) {
+    <li>
+      <strong>@opinion.id</strong>
+      @opinion.userId
+      @opinion.productId
+      @opinion.content
+
+      <a href="@controllers.routes.OpinionController.update(opinion.id)">Edit</a>
+      <a href="@controllers.routes.OpinionController.delete(opinion.id)">Delete</a>
+    </li>
+
+  }
+</ul>
+

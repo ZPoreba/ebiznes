@@ -1,0 +1,8 @@
+@(payment: Payment)
+
+<strong>@payment.id</strong>
+  @payment.date
+  @payment.status
+
+<a href="@controllers.routes.PaymentController.update(payment.id)">Edit</a>
+<a href="@controllers.routes.PaymentController.delete(payment.id)">Delete</a>

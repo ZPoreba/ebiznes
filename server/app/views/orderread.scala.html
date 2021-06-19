@@ -1,0 +1,13 @@
+@(order: Order, product: Seq[(Long, String, Long, String, Long)])
+
+<strong>@order.id</strong>
+  @order.userId
+  @order.paymentId
+  @order.status
+<strong>products: </strong>
+
+@for(prod <- product){
+  @prod._5
+}
+<a href="@controllers.routes.OrderController.update(order.id)">Edit</a>
+<a href="@controllers.routes.OrderController.delete(order.id)">Delete</a>

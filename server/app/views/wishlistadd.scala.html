@@ -1,0 +1,21 @@
+@(wishlist: Form[CreateWishListForm], product: Seq[(String, String)], user: Seq[ApiUser])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@import helper._
+
+@flash.get("success").getOrElse("")
+
+@form(routes.WishListController.createHandle()) {
+    @helper.CSRF.formField
+    User:
+    <select name="userId" id="userId">
+    @for(u <- user){
+        <option value="@u.id">@u.firstName @u.lastName</option>
+    }
+    </select>
+
+    @helper.select(wishlist("product"), product, 'multiple -> None )
+
+    <div class="buttons">
+        <input type="submit" value="Add WishList"/>
+    </div>
+}

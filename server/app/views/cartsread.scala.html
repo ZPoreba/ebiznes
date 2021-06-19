@@ -1,0 +1,19 @@
+@(carts: Seq[ApiUser], product: List[Seq[(String, Long)]])
+@import java.math.BigInteger; var i=0
+
+<ul>
+  @for(cart <- carts) {
+    <li>
+      <strong>@cart.id</strong>
+      <strong>products: </strong>
+      @for(p <- product(i)) {
+        @p._2
+      }
+
+      <a href="@controllers.routes.CartController.delete(cart.id.toString)">Delete</a>
+    </li>
+    @(i+=1)
+  }
+</ul>
+
+

@@ -1,0 +1,17 @@
+.profileView {
+    height: 100vh;
+    padding-top: 64px;
+    background-color: white;
+}
+
+.profileCard {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%)
+}
+
+.App .profileCard .ant-input[disabled] {
+    color: black;
+}

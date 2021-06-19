@@ -1,0 +1,17 @@
+@(payment: Form[CreatePaymentForm])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@import helper._
+
+@flash.get("success").getOrElse("")
+
+@form(routes.PaymentController.createHandle()) {
+    @helper.CSRF.formField
+
+    date:
+    <input name="date" id="date" type="date" />
+    @inputText(payment("status"))
+
+    <div class="buttons">
+        <input type="submit" value="Add Payment"/>
+    </div>
+}

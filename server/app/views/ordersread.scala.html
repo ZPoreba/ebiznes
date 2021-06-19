@@ -1,0 +1,23 @@
+@(orders: Seq[Order], product: List[Seq[(Long, String, Long, String, Long)]] )
+@import java.math.BigInteger; var i=0
+
+<ul>
+  @for(order <- orders) {
+    <li>
+      <strong>@order.id</strong>
+      @order.userId
+      @order.paymentId
+      @order.status
+
+      <strong>products: </strong>
+      @for(p <- product(i)) {
+        @p._5
+      }
+
+     <a href="@controllers.routes.OrderController.update(order.id)">Edit</a>
+     <a href="@controllers.routes.OrderController.delete(order.id)">Delete</a>
+    </li>
+  @(i+=1)
+  }
+</ul>
+
